@@ -5,8 +5,8 @@ title: "Progress Bar"
 module: "@uppy/progress-bar"
 permalink: docs/progress-bar/
 alias: docs/progressbar/
-category: 'UI Elements'
-tagline: add a small YouTube-style progress bar at the top of the page
+category: "UI Elements"
+tagline: "add a small YouTube-style progress bar at the top of the page"
 ---
 
 `@uppy/progress-bar` is a minimalist plugin that shows the current upload progress in a thin bar element, similar to the ones used by YouTube and GitHub when navigating between pages.
@@ -48,7 +48,7 @@ import '@uppy/core/dist/style.css'
 import '@uppy/progress-bar/dist/style.css'
 ```
 
-Import general Core styles from `@uppy/core/dist/style.css` first, then add the Informer styles from `@uppy/progress-bar/dist/style.css`. A minified version is also available as `style.min.css` at the same path. The way to do import depends on your build system.
+Import general Core styles from `@uppy/core/dist/style.css` first, then add the Progress Bar styles from `@uppy/progress-bar/dist/style.css`. A minified version is also available as `style.min.css` at the same path. The way to do import depends on your build system.
 
 ⚠️ If you use the [`@uppy/dashboard`](/docs/dashboard) plugin, you do not need to include the styles for the Progress Bar, because the Dashboard already includes it.
 

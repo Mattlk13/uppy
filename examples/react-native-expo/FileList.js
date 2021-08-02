@@ -16,12 +16,14 @@ import SvgUri from 'react-native-svg-uri'
 // }
 
 function FileIcon () {
-  return <View style={styles.itemIconContainer}>
-    <Image
-      style={styles.itemIcon}
-      source={require('./assets/file-icon.png')}
-    />
-  </View>
+  return (
+    <View style={styles.itemIconContainer}>
+      <Image
+        style={styles.itemIcon}
+        source={require('./assets/file-icon.png')}
+      />
+    </View>
+  )
 }
 
 function UppyDashboardFileIcon (props) {
@@ -31,10 +33,12 @@ function UppyDashboardFileIcon (props) {
   }
   const color = getFileTypeIcon(props.type).color
   return (
-    <View style={{
-      ...styles.itemIconContainer,
-      backgroundColor: color
-    }}>
+    <View
+      style={{
+        ...styles.itemIconContainer,
+        backgroundColor: color,
+      }}
+    >
       <SvgUri
         width={50}
         height={50}
@@ -60,12 +64,14 @@ export default function FileList (props) {
         renderItem={({ item }) => {
           return (
             <View style={styles.item}>
-              {item.type === 'image'
-                ? <Image
+              {item.type === 'image' ? (
+                <Image
                   style={styles.itemImage}
-                  source={{ uri: item.data.uri }} />
-                : <UppyDashboardFileIcon type={item.type} />
-              }
+                  source={{ uri: item.data.uri }}
+                />
+              ) : (
+                <UppyDashboardFileIcon type={item.type} />
+              )}
               <Text style={styles.itemName}>{truncateString(item.name, 20)}</Text>
               <Text style={styles.itemType}>{item.type}</Text>
             </View>
@@ -81,19 +87,19 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 20,
     flex: 1,
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   item: {
     width: 100,
     marginTop: 5,
     marginBottom: 15,
-    marginRight: 25
+    marginRight: 25,
   },
   itemImage: {
     width: 100,
     height: 100,
     borderRadius: 5,
-    marginBottom: 5
+    marginBottom: 5,
   },
   itemIconContainer: {
     width: 100,
@@ -102,24 +108,24 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     backgroundColor: '#cfd3d6',
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   itemIcon: {
     width: 42,
-    height: 56
+    height: 56,
   },
   itemIconSVG: {
     width: 50,
-    height: 50
+    height: 50,
   },
   itemName: {
     fontSize: 13,
     color: '#2c3e50',
-    fontWeight: '600'
+    fontWeight: '600',
   },
   itemType: {
     fontWeight: '600',
     fontSize: 12,
-    color: '#95a5a6'
-  }
+    color: '#95a5a6',
+  },
 })

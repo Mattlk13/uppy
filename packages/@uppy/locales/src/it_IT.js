@@ -10,11 +10,11 @@ it_IT.strings = {
   back: 'Indietro',
   addMore: 'Aggiungi più',
   browse: 'sfoglia',
+  browseFiles: 'sfoglia',
   cancel: 'Annulla',
   cancelUpload: 'Annulla upload',
   chooseFiles: 'Scegli i file',
   closeModal: 'Chiudi modale',
-  companionAuthError: 'Autorizzazione richiesta',
   companionError: 'Connessione con Companion fallita',
   complete: 'Completato',
   connectedToInternet: 'Connesso a internet',
@@ -29,9 +29,12 @@ it_IT.strings = {
   done: 'Fatto',
   dropHereOr: 'Trascina i file qui o %{browse}',
   dropHint: 'Trascina i file qui',
-  dropPaste: 'Trascina i file qui, incolla o %{browse}',
-  dropPasteImport: 'Trascina i file qui, incolla, %{browse} o importa da',
-  edit: 'Modifica',
+  dropPasteBoth: 'Trascina i file qui, incolla o %{browse}',
+  dropPasteFiles: 'Trascina i file qui, incolla o %{browse}',
+  dropPasteFolders: 'Trascina i file qui, incolla o %{browse}',
+  dropPasteImportBoth: 'Trascina i file qui, incolla, %{browse} o importa da',
+  dropPasteImportFiles: 'Trascina i file qui, incolla, %{browse} o importa da',
+  dropPasteImportFolders: 'Trascina i file qui, incolla, %{browse} o importa da',
   editFile: 'Modifica file',
   editing: 'Modifica %{file}',
   emptyFolderAdded: 'Nessun file aggiunto dalla cartella vuota',
@@ -45,18 +48,17 @@ it_IT.strings = {
   filesUploadedOfTotal: {
     '0': '%{complete} di %{smart_count} file caricato',
     '1': '%{complete} di %{smart_count} file caricati',
-    '2': '%{complete} di %{smart_count} file caricati'
+    '2': '%{complete} di %{smart_count} file caricati',
   },
   filter: 'Filter',
   finishEditingFile: 'Finish editing file',
   folderAdded: {
     '0': 'Aggiunto %{smart_count} file da %{folder}',
     '1': 'Aggiunti %{smart_count} file da %{folder}',
-    '2': 'Aggiunti %{smart_count} file da %{folder}'
+    '2': 'Aggiunti %{smart_count} file da %{folder}',
   },
   import: 'Importa',
   importFrom: 'Importa da %{name}',
-  link: 'Link',
   loading: 'Caricamento...',
   logOut: 'Logout',
   myDevice: 'Il mio computer',
@@ -66,11 +68,10 @@ it_IT.strings = {
   pauseUpload: 'Pausa upload',
   paused: 'In pausa',
   poweredBy: 'Powered by',
-  preparingUpload: 'Upload in preparazione...',
   processingXFiles: {
     '0': 'Sto processando %{smart_count} file',
     '1': 'Sto processando %{smart_count} file',
-    '2': 'Sto processando %{smart_count} file'
+    '2': 'Sto processando %{smart_count} file',
   },
   removeFile: 'Rimuovi il file',
   resetFilter: 'Ripristina filtro',
@@ -82,7 +83,7 @@ it_IT.strings = {
   selectX: {
     '0': 'Seleziona %{smart_count}',
     '1': 'Seleziona %{smart_count}',
-    '2': 'Seleziona %{smart_count}'
+    '2': 'Seleziona %{smart_count}',
   },
   smile: 'Sorridi!',
   startRecording: 'Inizia la registrazione del video',
@@ -96,46 +97,46 @@ it_IT.strings = {
   uploadXFiles: {
     '0': 'Upload di %{smart_count} file',
     '1': 'Upload di %{smart_count} file',
-    '2': 'Upload di %{smart_count} file'
+    '2': 'Upload di %{smart_count} file',
   },
   uploadXNewFiles: {
     '0': 'Upload +%{smart_count} file',
     '1': 'Upload +%{smart_count} file',
-    '2': 'Upload +%{smart_count} file'
+    '2': 'Upload +%{smart_count} file',
   },
   uploading: 'In caricamento',
   uploadingXFiles: {
     '0': 'Caricando %{smart_count} file',
     '1': 'Caricando %{smart_count} file',
-    '2': 'Caricando %{smart_count} file'
+    '2': 'Caricando %{smart_count} file',
   },
   xFilesSelected: {
     '0': '%{smart_count} file selezionato',
     '1': '%{smart_count} file selezionati',
-    '2': '%{smart_count} file selezionati'
+    '2': '%{smart_count} file selezionati',
   },
   xMoreFilesAdded: {
     '0': '%{smart_count} alto file aggiunto',
     '1': '%{smart_count} altri file aggiunti',
-    '2': '%{smart_count} ltri file aggiunti'
+    '2': '%{smart_count} ltri file aggiunti',
   },
   xTimeLeft: '%{time} rimasto',
   youCanOnlyUploadFileTypes: 'Puoi caricare solamente: %{types}',
   youCanOnlyUploadX: {
     '0': 'Puoi caricare %{smart_count} solo file',
     '1': 'Puoi caricare solo %{smart_count} file',
-    '2': 'Puoi caricare solo %{smart_count} file'
+    '2': 'Puoi caricare solo %{smart_count} file',
   },
   youHaveToAtLeastSelectX: {
     '0': 'Devi selezionare almeno %{smart_count} file',
     '1': 'Devi selezionare almeno %{smart_count} file',
-    '2': 'Devi selezionare almeno %{smart_count} file'
+    '2': 'Devi selezionare almeno %{smart_count} file',
   },
   selectAllFilesFromFolderNamed: 'Seleziona tutti i file dalla cartella %{name}',
   unselectAllFilesFromFolderNamed: 'Deseleziona tutti i file dalla cartella %{name}',
   selectFileNamed: 'Seleziona il file %{name}',
   unselectFileNamed: 'Deseleziona il file %{name}',
-  openFolderNamed: 'Cartella aperta %{name}'
+  openFolderNamed: 'Cartella aperta %{name}',
 }
 
 it_IT.pluralize = function (n) {

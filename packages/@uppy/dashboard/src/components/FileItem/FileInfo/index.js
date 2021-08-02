@@ -1,22 +1,11 @@
 const { h } = require('preact')
-const prettyBytes = require('@uppy/utils/lib/prettyBytes')
-const truncateString = require('../../../utils/truncateString')
+const prettierBytes = require('@transloadit/prettier-bytes')
+const truncateString = require('@uppy/utils/lib/truncateString')
 
-const renderAcquirerIcon = (acquirer, props) =>
+const renderAcquirerIcon = (acquirer, props) => (
   <span title={props.i18n('fileSource', { name: acquirer.name })}>
     {acquirer.icon()}
   </span>
-
-const renderFileSource = (props) => (
-  props.file.source &&
-  props.file.source !== props.id &&
-  <div class="uppy-DashboardItem-sourceIcon">
-    {props.acquirers.map(acquirer => {
-      if (acquirer.id === props.file.source) {
-        return renderAcquirerIcon(acquirer, props)
-      }
-    })}
-  </div>
 )
 
 const renderFileName = (props) => {
@@ -34,26 +23,68 @@ const renderFileName = (props) => {
   }
 
   return (
-    <div class="uppy-DashboardItem-name" title={props.file.meta.name}>
+    <div className="uppy-Dashboard-Item-name" title={props.file.meta.name}>
       {truncateString(props.file.meta.name, maxNameLength)}
     </div>
   )
 }
 
 const renderFileSize = (props) => (
-  props.file.data.size &&
-  <div class="uppy-DashboardItem-statusSize">
-    {prettyBytes(props.file.data.size)}
-  </div>
+  props.file.size
+    && (
+    <div className="uppy-Dashboard-Item-statusSize">
+      {prettierBytes(props.file.size)}
+    </div>
+    )
 )
+
+const ReSelectButton = (props) => (
+  props.file.isGhost
+    && (
+      <span>
+        {' \u2022 '}
+        <button
+          className="uppy-u-reset uppy-c-btn uppy-Dashboard-Item-reSelect"
+          type="button"
+          onClick={props.toggleAddFilesPanel}
+        >
+          {props.i18n('reSelect')}
+        </button>
+      </span>
+    )
+)
+
+const ErrorButton = ({ file, onClick }) => {
+  if (file.error) {
+    return (
+      <span
+        className="uppy-Dashboard-Item-errorDetails"
+        aria-label={file.error}
+        data-microtip-position="bottom"
+        data-microtip-size="medium"
+        role="tooltip"
+        onClick={onClick}
+      >
+        ?
+      </span>
+    )
+  }
+  return null
+}
 
 module.exports = function FileInfo (props) {
   return (
-    <div class="uppy-DashboardItem-fileInfo">
+    <div className="uppy-Dashboard-Item-fileInfo" data-uppy-file-source={props.file.source}>
       {renderFileName(props)}
-      <div class="uppy-DashboardItem-status">
+      <div className="uppy-Dashboard-Item-status">
         {renderFileSize(props)}
-        {renderFileSource(props)}
+        {ReSelectButton(props)}
+        <ErrorButton
+          file={props.file}
+          onClick={() => {
+            alert(props.file.error)
+          }}
+        />
       </div>
     </div>
   )

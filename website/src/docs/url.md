@@ -5,8 +5,8 @@ title: "Import From URL"
 menu_prefix: "<span title='Requires Companion'>ⓒ </span>"
 module: "@uppy/url"
 permalink: docs/url/
-category: 'Sources'
-tagline: import files from any public URL
+category: "Sources"
+tagline: "import files from any public URL"
 ---
 
 The `@uppy/url` plugin allows users to import files from the internet. Paste any URL and it will be added!
@@ -72,11 +72,15 @@ Configures the title / name shown in the UI, for instance, on Dashboard tabs. It
 
 ### `target: null`
 
-DOM element, CSS selector, or plugin to mount the URL provider into. This should normally be the Dashboard.
+DOM element, CSS selector, or plugin to mount the URL provider into. This should normally be the [`@uppy/dashboard`](/docs/dashboard) plugin.
 
 ### `companionUrl: null`
 
 URL to an Companion instance.
+
+### `companionCookiesRule: 'same-origin'`
+
+This option correlates to the [RequestCredentials value](https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials), which tells the plugin whether or not to send cookies to [Companion](/docs/companion).
 
 ### `locale: {}`
 
@@ -97,3 +101,12 @@ strings: {
 }
 ```
 
+## Methods
+
+### `addFile`
+
+You can add a file to the Url plugin directly via the API, like this:
+
+```js
+uppy.getPlugin('Url').addFile('https://example.com/myfile.pdf').then(uppy.upload)
+```

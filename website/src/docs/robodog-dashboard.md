@@ -4,7 +4,7 @@ title: "Robodog: Dashboard API"
 menu: "Robodog Dashboard"
 permalink: docs/robodog/dashboard/
 order: 4
-category: 'File Processing'
+category: "File Processing"
 ---
 
 Add the [Dashboard UI][dashboard] to your page, all wired up and ready to go! This is a basic wrapper around the [Transloadit][transloadit] and [Dashboard][dashboard] plugins. Unlike the [File Picker][file picker] API, this Dashboard is embedded directly into the page. Users can upload multiple files after another.
@@ -13,7 +13,7 @@ Add the [Dashboard UI][dashboard] to your page, all wired up and ready to go! Th
 <div id="dashboard"></div>
 
 <script>
-robodog.dashboard('#dashboard', {
+Robodog.dashboard('#dashboard', {
   params: {
     auth: { key: '' },
     template_id: ''
@@ -25,13 +25,13 @@ robodog.dashboard('#dashboard', {
 This API can still be used as a modal, too, by specifying `inline: false`:
 
 ```js
-robodog.dashboard(selector, { inline: false })
+Robodog.dashboard(selector, { inline: false })
 ```
 
-The `robodog.dashboard()` function returns an Uppy instance, which you can use to listen for any Uppy events.
+The `Robodog.dashboard()` function returns an Uppy instance, which you can use to listen for any Uppy events.
 
 ```js
-const uppy = robodog.dashboard(selector, { ...options })
+const uppy = Robodog.dashboard(selector, { ...options })
   .on('transloadit:result', (result) => {
     console.log(result)
   })
@@ -39,7 +39,7 @@ const uppy = robodog.dashboard(selector, { ...options })
 
 ## Transloadit
 
-All the options to the [Transloadit][transloadit] plugin are supported.
+Most options to the [Transloadit][transloadit] plugin are supported with the exception of `id`.
 
 ## Restrictions
 
@@ -48,6 +48,14 @@ Set rules and conditions to limit the type and/or number of files that can be se
 ### `restrictions.maxFileSize`
 
 Maximum file size in bytes for each individual file.
+
+### `restrictions.minFileSize`
+
+Minimum file size in bytes for each individual file.
+
+### `restrictions.maxTotalFileSize`
+
+Maximum file size in bytes for all the files together.
 
 ### `restrictions.maxNumberOfFiles`
 

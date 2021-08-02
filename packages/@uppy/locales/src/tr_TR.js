@@ -10,11 +10,11 @@ tr_TR.strings = {
   authenticateWithTitle: 'Lütfen dosyaları seçmek için %{pluginName} ile bağlanın',
   back: 'Geri',
   browse: 'gözat',
+  browseFiles: 'gözat',
   cancel: 'İptal',
   cancelUpload: 'Yüklemeyi İptal Et',
   chooseFiles: 'Dosyaları seç',
   closeModal: 'Kapat',
-  companionAuthError: 'Bağlantı izni gerekli',
   companionError: 'Bağlantı başarısız',
   complete: 'Yüklendi',
   connectedToInternet: 'İnternete bağlanıldı',
@@ -29,9 +29,12 @@ tr_TR.strings = {
   done: 'Bitti',
   dropHereOr: 'Sürükleyip bırak veya %{browse}',
   dropHint: 'Buraya sürükleyip bırakın',
-  dropPaste: 'Sürükleyip bırak, yapıştır veya %{browse}',
-  dropPasteImport: 'Sürükleyip bırak, yapıştır, %{browse} veya içeri aktar',
-  edit: 'Düzenle',
+  dropPasteBoth: 'Sürükleyip bırak, yapıştır veya %{browse}',
+  dropPasteFiles: 'Sürükleyip bırak, yapıştır veya %{browse}',
+  dropPasteFolders: 'Sürükleyip bırak, yapıştır veya %{browse}',
+  dropPasteImportBoth: 'Sürükleyip bırak, yapıştır, %{browse} veya içeri aktar',
+  dropPasteImportFiles: 'Sürükleyip bırak, yapıştır, %{browse} veya içeri aktar',
+  dropPasteImportFolders: 'Sürükleyip bırak, yapıştır, %{browse} veya içeri aktar',
   editFile: 'Dosyayı düzenle',
   editing: '%{file} düzenleniyor',
   emptyFolderAdded: 'Klasör boş',
@@ -45,18 +48,17 @@ tr_TR.strings = {
   filesUploadedOfTotal: {
     '0': '%{complete} / %{smart_count} dosya yüklendi',
     '1': '%{complete} / %{smart_count} dosya yüklendi',
-    '2': '%{complete} / %{smart_count} dosya yüklendi'
+    '2': '%{complete} / %{smart_count} dosya yüklendi',
   },
   filter: 'Filtre',
   finishEditingFile: 'Düzenlemeyi bitir',
   folderAdded: {
     '0': '%{folder} klasöründen %{smart_count} dosya eklendi',
     '1': '%{folder} klasöründen %{smart_count} dosya eklendi',
-    '2': '%{folder} klasöründen %{smart_count} dosya eklendi'
+    '2': '%{folder} klasöründen %{smart_count} dosya eklendi',
   },
   import: 'Ekle',
   importFrom: '%{name} Ekle',
-  link: 'Link',
   loading: 'Yükleniyor...',
   logOut: 'Çıkış',
   myDevice: 'Dosyalarım',
@@ -66,11 +68,10 @@ tr_TR.strings = {
   pauseUpload: 'Yükleme Durdu',
   paused: 'Durdu',
   poweredBy: 'Powered by',
-  preparingUpload: 'Yüklemeye hazırlanıyor...',
   processingXFiles: {
     '0': '%{smart_count} dosya işleniyor',
     '1': '%{smart_count} dosya işleniyor',
-    '2': '%{smart_count} dosya işleniyor'
+    '2': '%{smart_count} dosya işleniyor',
   },
   removeFile: 'Dosyayı kaldır',
   resetFilter: 'Filtreyi temizle',
@@ -82,7 +83,7 @@ tr_TR.strings = {
   selectX: {
     '0': '%{smart_count} seç',
     '1': '%{smart_count} seç',
-    '2': '%{smart_count} seç'
+    '2': '%{smart_count} seç',
   },
   smile: 'Gülümse!',
   startRecording: 'Video kaydına başla',
@@ -96,46 +97,46 @@ tr_TR.strings = {
   uploadXFiles: {
     '0': '%{smart_count} dosyayı yükle',
     '1': '%{smart_count} dosyayı yükle',
-    '2': '%{smart_count} dosyayı yükle'
+    '2': '%{smart_count} dosyayı yükle',
   },
   uploadXNewFiles: {
     '0': '+%{smart_count} dosyayı yükle',
     '1': '+%{smart_count} dosyayı yükle',
-    '2': '+%{smart_count} dosyayı yükle'
+    '2': '+%{smart_count} dosyayı yükle',
   },
   uploading: 'Yükleniyor',
   uploadingXFiles: {
     '0': '%{smart_count} dosya yükleniyor',
     '1': '%{smart_count} dosya yükleniyor',
-    '2': '%{smart_count} dosya yükleniyor'
+    '2': '%{smart_count} dosya yükleniyor',
   },
   xFilesSelected: {
     '0': '%{smart_count} dosya seçildi',
     '1': '%{smart_count} dosya seçildi',
-    '2': '%{smart_count} dosya seçildi'
+    '2': '%{smart_count} dosya seçildi',
   },
   xMoreFilesAdded: {
     '0': '%{smart_count} dosya daha eklendi',
     '1': '%{smart_count} dosya daha eklendi',
-    '2': '%{smart_count} dosya daha eklendi'
+    '2': '%{smart_count} dosya daha eklendi',
   },
   xTimeLeft: 'kalan süre %{time}',
   youCanOnlyUploadFileTypes: 'Sadece %{types} yükleyebilirsiniz',
   youCanOnlyUploadX: {
     '0': 'Sadece %{smart_count} dosya yükleyebilirsiniz',
     '1': 'Sadece %{smart_count} dosya yükleyebilirsiniz',
-    '2': 'Sadece %{smart_count} dosya yükleyebilirsiniz'
+    '2': 'Sadece %{smart_count} dosya yükleyebilirsiniz',
   },
   youHaveToAtLeastSelectX: {
     '0': 'En az %{smart_count} dosya seçmelisin',
     '1': 'En az %{smart_count} dosya seçmelisin',
-    '2': 'En az %{smart_count} dosya seçmelisin'
+    '2': 'En az %{smart_count} dosya seçmelisin',
   },
   selectAllFilesFromFolderNamed: 'Klasördeki tüm dosyaları seç %{name}',
   unselectAllFilesFromFolderNamed: 'Klasördeki tüm dosyaların seçimini kaldır %{name}',
   selectFileNamed: 'Dosya Seç %{name}',
   unselectFileNamed: 'Dosya seçimini kaldır %{name}',
-  openFolderNamed: 'Açık dosya %{name}'
+  openFolderNamed: 'Açık dosya %{name}',
 }
 
 tr_TR.pluralize = function (n) {

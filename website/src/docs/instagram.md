@@ -5,8 +5,8 @@ title: "Instagram"
 menu_prefix: "<span title='Requires Companion'>ⓒ </span>"
 module: "@uppy/instagram"
 permalink: docs/instagram/
-category: 'Sources'
-tagline: import files from Instagram
+category: "Sources"
+tagline: "import files from Instagram"
 ---
 
 The `@uppy/instagram` plugin lets users import files from their Instagram account.
@@ -43,9 +43,9 @@ const Instagram = Uppy.Instagram
 
 ## CSS
 
-Dashboard plugin is recommended as a container to all Provider plugins, including Instagram. If you are using Dashboard, it [comes with all the nessesary styles](/docs/dashboard/#CSS) for Dropbox as well.
+Dashboard plugin is recommended as a container to all Provider plugins, including Instagram. If you are using Dashboard, it [comes with all the necessary styles](/docs/dashboard/#CSS) for Instagram as well.
 
-⚠️ If you are feeling adventurous, and want to use Instagram plugin separately, without Dashboard, make sure to include `@uppy/provider-views/dist/style.css` (or `style.min.css`) CSS file. This is experimental, not officialy supported and not recommended.
+⚠️ If you are feeling adventurous, and want to use Instagram plugin separately, without Dashboard, make sure to include `@uppy/provider-views/dist/style.css` (or `style.min.css`) CSS file. This is experimental, not officially supported and not recommended.
 
 ## Options
 
@@ -68,13 +68,13 @@ Configures the title / name shown in the UI, for instance, on Dashboard tabs. It
 
 ### `target: null`
 
-DOM element, CSS selector, or plugin to mount the Instagram provider into. This should normally be the Dashboard.
+DOM element, CSS selector, or plugin to mount the Instagram provider into. This should normally be the [`@uppy/dashboard`](/docs/dashboard) plugin.
 
 ### `companionUrl: null`
 
 URL to a [Companion](/docs/companion) instance.
 
-### `serverHeaders: {}`
+### `companionHeaders: {}`
 
 Custom headers that should be sent along to [Companion](/docs/companion) on every request.
 
@@ -85,6 +85,10 @@ The valid and authorised URL(s) from which OAuth responses should be accepted.
 This value can be a `String`, a `Regex` pattern, or an `Array` of both.
 
 This is useful when you have your [Companion](/docs/companion) running on multiple hosts. Otherwise, the default value should be good enough.
+
+### `companionCookiesRule: 'same-origin'`
+
+This option correlates to the [RequestCredentials value](https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials), which tells the plugin whether or not to send cookies to [Companion](/docs/companion).
 
 ### `locale: {}`
 

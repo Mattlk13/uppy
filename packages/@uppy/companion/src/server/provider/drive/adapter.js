@@ -1,8 +1,10 @@
 const querystring = require('querystring')
 
+// @todo use the "about" endpoint to get the username instead
+// see: https://developers.google.com/drive/api/v2/reference/about/get
 exports.getUsername = (data) => {
   for (const item of data.files) {
-    if (item.ownedByMe) {
+    if (item.ownedByMe && item.permissions) {
       for (const permission of item.permissions) {
         if (permission.role === 'owner') {
           return permission.emailAddress
@@ -10,10 +12,15 @@ exports.getUsername = (data) => {
       }
     }
   }
+  return undefined
 }
 
 exports.isFolder = (item) => {
-  return item.mimeType === 'application/vnd.google-apps.folder' || item.kind === 'drive#teamDrive'
+  return item.mimeType === 'application/vnd.google-apps.folder' || exports.isSharedDrive(item)
+}
+
+exports.isShortcut = (mimeType) => {
+  return mimeType === 'application/vnd.google-apps.shortcut'
 }
 
 exports.getItemSize = (item) => {
@@ -21,7 +28,7 @@ exports.getItemSize = (item) => {
 }
 
 exports.getItemIcon = (item) => {
-  if (item.kind === 'drive#teamDrive') {
+  if (exports.isSharedDrive(item)) {
     const size = '=w16-h16-n'
     const sizeParamRegex = /=[-whncsp0-9]*$/
     return item.backgroundImageLink.match(sizeParamRegex)
@@ -29,7 +36,7 @@ exports.getItemIcon = (item) => {
       : `${item.backgroundImageLink}${size}`
   }
 
-  if (item.thumbnailLink) {
+  if (item.thumbnailLink && !item.mimeType.startsWith('application/vnd.google')) {
     const smallerThumbnailLink = item.thumbnailLink.replace('s220', 's40')
     return smallerThumbnailLink
   }
@@ -38,17 +45,49 @@ exports.getItemIcon = (item) => {
 }
 
 exports.getItemSubList = (item) => {
+  const allowedGSuiteTypes = [
+    'application/vnd.google-apps.document',
+    'application/vnd.google-apps.drawing',
+    'application/vnd.google-apps.script',
+    'application/vnd.google-apps.spreadsheet',
+    'application/vnd.google-apps.presentation',
+    'application/vnd.google-apps.shortcut',
+  ]
+
   return item.files.filter((i) => {
-    return exports.isFolder(i) || !i.mimeType.startsWith('application/vnd.google')
+    return exports.isFolder(i) || !exports.isGsuiteFile(i.mimeType) || allowedGSuiteTypes.includes(i.mimeType)
   })
 }
 
 exports.getItemName = (item) => {
+  const extensionMaps = {
+    'application/vnd.google-apps.document': '.docx',
+    'application/vnd.google-apps.drawing': '.png',
+    'application/vnd.google-apps.script': '.json',
+    'application/vnd.google-apps.spreadsheet': '.xlsx',
+    'application/vnd.google-apps.presentation': '.ppt',
+  }
+
+  const extension = extensionMaps[item.mimeType]
+  if (extension && item.name && !item.name.endsWith(extension)) {
+    return item.name + extension
+  }
+
   return item.name ? item.name : '/'
 }
 
+function getMimeType (mimeType) {
+  if (exports.isGsuiteFile(mimeType)) {
+    return exports.getGsuiteExportType(mimeType)
+  }
+  return mimeType
+}
+
 exports.getMimeType = (item) => {
-  return item.mimeType
+  if (exports.isShortcut(item.mimeType)) {
+    return getMimeType(item.shortcutDetails.targetMimeType)
+  }
+  return getMimeType(item.mimeType)
 }
 
 exports.getItemId = (item) => {
@@ -64,20 +103,47 @@ exports.getItemModifiedDate = (item) => {
 }
 
 exports.getItemThumbnailUrl = (item) => {
-  return `/drive/thumbnail/${exports.getItemRequestPath(item)}`
+  return item.thumbnailLink
 }
 
-exports.isTeamDrive = (item) => {
-  return item.kind === 'drive#teamDrive'
+exports.isSharedDrive = (item) => {
+  return item.kind === 'drive#drive'
 }
 
 exports.getNextPagePath = (data, currentQuery, currentPath) => {
   if (!data.nextPageToken) {
     return null
   }
-  const query = {
-    ...currentQuery,
-    cursor: data.nextPageToken
-  }
+  const query = { ...currentQuery, cursor: data.nextPageToken }
   return `${currentPath}?${querystring.stringify(query)}`
 }
+
+exports.isGsuiteFile = (mimeType) => {
+  return mimeType && mimeType.startsWith('application/vnd.google')
+}
+
+exports.getGsuiteExportType = (mimeType) => {
+  const typeMaps = {
+    'application/vnd.google-apps.document': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.google-apps.drawing': 'image/png',
+    'application/vnd.google-apps.script': 'application/vnd.google-apps.script+json',
+    'application/vnd.google-apps.spreadsheet': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.google-apps.presentation': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  }
+
+  return typeMaps[mimeType] || 'application/pdf'
+}
+
+exports.getImageHeight = (item) => item.imageMediaMetadata && item.imageMediaMetadata.height
+
+exports.getImageWidth = (item) => item.imageMediaMetadata && item.imageMediaMetadata.width
+
+exports.getImageRotation = (item) => item.imageMediaMetadata && item.imageMediaMetadata.rotation
+
+exports.getImageDate = (item) => item.imageMediaMetadata && item.imageMediaMetadata.date
+
+exports.getVideoHeight = (item) => item.videoMediaMetadata && item.videoMediaMetadata.height
+
+exports.getVideoWidth = (item) => item.videoMediaMetadata && item.videoMediaMetadata.width
+
+exports.getVideoDurationMillis = (item) => item.videoMediaMetadata && item.videoMediaMetadata.durationMillis

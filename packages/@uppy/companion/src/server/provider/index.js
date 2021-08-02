@@ -4,79 +4,67 @@
 // @ts-ignore
 const config = require('@purest/providers')
 const dropbox = require('./dropbox')
+const box = require('./box')
 const drive = require('./drive')
-const instagram = require('./instagram')
+const instagram = require('./instagram/graph')
+const facebook = require('./facebook')
+const onedrive = require('./onedrive')
+const unsplash = require('./unsplash')
+const zoom = require('./zoom')
 const { getURLBuilder } = require('../helpers/utils')
 const logger = require('../logger')
+const { getCredentialsResolver } = require('./credentials')
+// eslint-disable-next-line
+const Provider = require('./Provider')
+// eslint-disable-next-line
+const SearchProvider = require('./SearchProvider')
 
-/**
- * Provider interface defines the specifications of any provider implementation
- *
- * @interface
- */
-class Provider {
-  /**
-   *
-   * @param {object} options
-   */
-  constructor (options) {
-    return this
-  }
-  /**
-   *
-   * @param {object} options
-   * @param {function} cb
-   */
-  list (options, cb) {}
-
-  /**
-   *
-   * @param {object} options
-   * @param {function} cb
-   */
-  download (options, cb) {}
-
-  /**
-   *
-   * @param {object} options
-   * @param {function} cb
-   */
-  thumbnail (options, cb) {}
-
-  /**
-   *
-   * @param {object} options
-   * @param {function} cb
-   */
-  size (options, cb) {}
-
-  /**
-   * @returns {string}
-   */
-  static get authProvider () {
-    return ''
-  }
+// leave here for now until Purest Providers gets updated with Zoom provider
+config.zoom = {
+  'https://zoom.us/': {
+    __domain: {
+      auth: {
+        auth: { bearer: '[0]' },
+      },
+    },
+    '[version]/{endpoint}': {
+      __path: {
+        alias: '__default',
+        version: 'v2',
+      },
+    },
+    'oauth/revoke': {
+      __path: {
+        alias: 'logout',
+        auth: {
+          auth: { basic: '[0]' },
+        },
+      },
+    },
+  },
 }
-
-module.exports.ProviderInterface = Provider
 
 /**
  * adds the desired provider module to the request object,
  * based on the providerName parameter specified
  *
- * @param {Object.<string, typeof Provider>} providers
+ * @param {Object.<string, (typeof Provider) | typeof SearchProvider>} providers
+ * @param {boolean=} needsProviderCredentials
  */
-module.exports.getProviderMiddleware = (providers) => {
+module.exports.getProviderMiddleware = (providers, needsProviderCredentials) => {
   /**
    *
    * @param {object} req
    * @param {object} res
-   * @param {function} next
+   * @param {Function} next
    * @param {string} providerName
    */
   const middleware = (req, res, next, providerName) => {
-    if (providers[providerName] && validOptions(req.uppy.options)) {
-      req.uppy.provider = new providers[providerName]({ providerName, config })
+    if (providers[providerName] && validOptions(req.companion.options)) {
+      req.companion.provider = new providers[providerName]({ providerName, config })
+      if (needsProviderCredentials) {
+        req.companion.getProviderCredentials = getCredentialsResolver(providerName, req.companion.options, req)
+      }
     } else {
       logger.warn('invalid provider options detected. Provider will not be loaded', 'provider.middleware.invalid', req.id)
     }
@@ -87,10 +75,21 @@ module.exports.getProviderMiddleware = (providers) => {
 }
 
 /**
- * @return {Object.<string, typeof Provider>}
+ * @param {{server: object, providerOptions: object}} companionOptions
+ * @returns {Object.<string, typeof Provider>}
  */
-module.exports.getDefaultProviders = () => {
-  return { dropbox, drive, instagram }
+module.exports.getDefaultProviders = (companionOptions) => {
+  // @todo: we should rename drive to googledrive or google-drive or google
+  const providers = { dropbox, box, drive, facebook, onedrive, zoom, instagram }
+
+  return providers
+}
+
+/**
+ * @returns {Object.<string, typeof SearchProvider>}
+ */
+module.exports.getSearchProviders = () => {
+  return { unsplash }
 }
 
 /**
@@ -104,42 +103,55 @@ module.exports.getDefaultProviders = () => {
 module.exports.addCustomProviders = (customProviders, providers, grantConfig) => {
   Object.keys(customProviders).forEach((providerName) => {
     providers[providerName] = customProviders[providerName].module
-    grantConfig[providerName] = customProviders[providerName].config
+    const providerConfig = { ...customProviders[providerName].config }
+    // todo: consider setting these options from a universal point also used
+    // by official providers. It'll prevent these from getting left out if the
+    // requirement changes.
+    providerConfig.callback = `/${providerName}/callback`
+    providerConfig.transport = 'session'
+    grantConfig[providerName] = providerConfig
   })
 }
 
 /**
  *
- * @param {{server: object, providerOptions: object}} options
+ * @param {{server: object, providerOptions: object}} companionOptions
  * @param {object} grantConfig
  */
-module.exports.addProviderOptions = (options, grantConfig) => {
-  const { server, providerOptions } = options
+module.exports.addProviderOptions = (companionOptions, grantConfig) => {
+  const { server, providerOptions } = companionOptions
   if (!validOptions({ server })) {
     logger.warn('invalid provider options detected. Providers will not be loaded', 'provider.options.invalid')
     return
   }
 
-  grantConfig.server = {
+  grantConfig.defaults = {
     host: server.host,
     protocol: server.protocol,
-    path: server.path
+    path: server.path,
   }
 
   const { oauthDomain } = server
   const keys = Object.keys(providerOptions).filter((key) => key !== 'server')
-  keys.forEach((authProvider) => {
-    if (grantConfig[authProvider]) {
+  keys.forEach((providerName) => {
+    const authProvider = providerNameToAuthName(providerName, companionOptions)
+    if (authProvider && grantConfig[authProvider]) {
       // explicitly add providerOptions so users don't override other providerOptions.
-      grantConfig[authProvider].key = providerOptions[authProvider].key
-      grantConfig[authProvider].secret = providerOptions[authProvider].secret
+      grantConfig[authProvider].key = providerOptions[providerName].key
+      grantConfig[authProvider].secret = providerOptions[providerName].secret
+      if (providerOptions[providerName].credentialsURL) {
+        grantConfig[authProvider].dynamic = ['key', 'secret', 'redirect_uri']
+      }
 
-      // override grant.js redirect uri with uppy's custom redirect url
+      const provider = exports.getDefaultProviders(companionOptions)[providerName]
+      Object.assign(grantConfig[authProvider], provider.getExtraConfig())
+
+      // override grant.js redirect uri with companion's custom redirect url
+      const isExternal = !!server.implicitPath
+      const redirectPath = `/${providerName}/redirect`
+      grantConfig[authProvider].redirect_uri = getURLBuilder(companionOptions)(redirectPath, isExternal)
       if (oauthDomain) {
-        const providerName = authToProviderName(authProvider)
-        const redirectPath = `/${providerName}/redirect`
-        const isExternal = !!server.implicitPath
-        const fullRedirectPath = getURLBuilder(options)(redirectPath, isExternal, true)
+        const fullRedirectPath = getURLBuilder(companionOptions)(redirectPath, isExternal, true)
         grantConfig[authProvider].redirect_uri = `${server.protocol}://${oauthDomain}${fullRedirectPath}`
       }
 
@@ -149,25 +161,21 @@ module.exports.addProviderOptions = (options, grantConfig) => {
       } else if (server.path) {
         grantConfig[authProvider].callback = `${server.path}${grantConfig[authProvider].callback}`
       }
-    } else if (authProvider !== 's3') {
-      logger.warn(`skipping one found unsupported provider "${authProvider}".`, 'provider.options.skip')
+    } else if (!['s3', 'searchProviders'].includes(providerName)) {
+      logger.warn(`skipping one found unsupported provider "${providerName}".`, 'provider.options.skip')
     }
   })
 }
 
 /**
  *
- * @param {string} authProvider
+ * @param {string} name of the provider
+ * @param {{server: object, providerOptions: object}} options
+ * @returns {string} the authProvider for this provider
  */
-const authToProviderName = (authProvider) => {
-  const providers = exports.getDefaultProviders()
-  const providerNames = Object.keys(providers)
-  for (const name of providerNames) {
-    const provider = providers[name]
-    if (provider.authProvider === authProvider) {
-      return name
-    }
-  }
+const providerNameToAuthName = (name, options) => {
+  const providers = exports.getDefaultProviders(options)
+  return (providers[name] || {}).authProvider
 }
 
 /**

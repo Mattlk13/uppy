@@ -1,4 +1,5 @@
 const Transloadit = require('@uppy/transloadit')
+const has = require('@uppy/utils/lib/hasProperty')
 const TransloaditResults = require('./TransloaditResultsPlugin')
 
 const transloaditOptionNames = [
@@ -10,13 +11,15 @@ const transloaditOptionNames = [
   'signature',
   'params',
   'fields',
-  'getAssemblyOptions'
+  'limit',
+  'locale',
+  'getAssemblyOptions',
 ]
 
 function addTransloaditPlugin (uppy, opts) {
   const transloaditOptions = {}
   transloaditOptionNames.forEach((name) => {
-    if (opts.hasOwnProperty(name)) transloaditOptions[name] = opts[name]
+    if (has(opts, name)) transloaditOptions[name] = opts[name]
   })
   uppy.use(Transloadit, transloaditOptions)
 

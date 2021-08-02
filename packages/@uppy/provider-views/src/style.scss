@@ -4,12 +4,17 @@
 @import './style/uppy-ProviderBrowser-viewType--grid';
 @import './style/uppy-ProviderBrowser-viewType--list';
 @import './style/uppy-ProviderBrowserItem-fakeCheckbox';
+@import './style/uppy-SearchProvider-input.scss';
 
 .uppy-DashboardContent-panelBody {
   display: flex;
   align-items: center;
   justify-content: center;
   flex: 1;
+
+  [data-uppy-theme="dark"] & {
+    background-color: $gray-900;
+  }
 }
 
 .uppy-Provider-auth,
@@ -47,6 +52,10 @@
   .uppy-size--md & {
     font-size: 20px;
   }
+
+  [data-uppy-theme="dark"] & {
+    color: $gray-300;
+  }
 }
 
 .uppy-Provider-breadcrumbs {
@@ -54,17 +63,21 @@
   color: $gray-700;
   font-size: 12px;
   margin-bottom: 10px;
-  text-align: left;
+  text-align: start;
 
   .uppy-size--md & {
     margin-bottom: 0;
+  }
+
+  [data-uppy-theme="dark"] & {
+    color: $gray-200;
   }
 }
   .uppy-Provider-breadcrumbsIcon {
     display: inline-block;
     color: $gray-700;
     vertical-align: middle;
-    margin-right: 4px;
+    margin-inline-end: 4px;
     line-height: 1;
   }
     .uppy-Provider-breadcrumbsIcon svg {
@@ -80,9 +93,14 @@
     // for focus
     padding: 4px;
     border-radius: 3px;
+
     &:hover {
       text-decoration: underline;
       cursor: pointer;
+    }
+
+    [data-uppy-theme="dark"] & {
+      color: $gray-200;
     }
   }
 // ...uppy-Provider-breadcrumbs|
@@ -100,12 +118,16 @@
   margin: 0 8px 0 0;
   font-weight: 500;
   color: $gray-800;
+
+  [data-uppy-theme="dark"] & {
+    color: $gray-200;
+  }
 }
 
   .uppy-ProviderBrowser-user:after {
     content: '\00B7';
     position: relative;
-    left: 4px;
+    inset-inline-start: 4px;
     color: $gray-500;
     font-weight: normal;
   }
@@ -114,6 +136,10 @@
   z-index: $zIndex-2;
   border-bottom: 1px solid $gray-200;
   position: relative;
+
+  [data-uppy-theme="dark"] & {
+    border-bottom: 1px solid $gray-800;
+  }
 }
 
 .uppy-ProviderBrowser-headerBar {
@@ -127,6 +153,10 @@
   .uppy-size--md & {
     display: flex;
     align-items: center;
+  }
+
+  [data-uppy-theme="dark"] & {
+    background-color: $gray-900;
   }
 }
 
@@ -151,13 +181,17 @@
   margin-bottom: 5px;
   display: flex;
   align-items: center;
+
+  [data-uppy-theme="dark"] & {
+    background-color: $gray-900;
+  }
 }
 
 .uppy-ProviderBrowser-searchIcon {
   position: absolute;
   width: 12px;
   height: 12px;
-  left: 16px;
+  inset-inline-start: 16px;
   z-index: $zIndex-3;
   color: $gray-400;
 }
@@ -172,14 +206,23 @@
   line-height: 1.4;
   border: 0;
   margin: 0 8px;
-  padding-left: 27px;
+  padding-inline-start: 27px;
   z-index: $zIndex-2;
   border-radius: 4px;
+
+  [data-uppy-theme="dark"] & {
+    background-color: $gray-900;
+    color: $gray-200;
+  }
 }
 
   .uppy-ProviderBrowser-searchInput:focus {
     outline: 0;
     background-color: $gray-100;
+
+    [data-uppy-theme="dark"] & {
+      background-color: $gray-800;
+    }
   }
 
 .uppy-ProviderBrowser-searchClose {
@@ -187,7 +230,7 @@
   width: 22px;
   height: 22px;
   padding: 6px;
-  right: 12px;
+  inset-inline-end: 12px;
   top: 4px;
   z-index: $zIndex-3;
   color: $gray-500;
@@ -219,6 +262,10 @@
   &:hover {
     text-decoration: underline;
   }
+
+  [data-uppy-theme="dark"] & {
+    color: $gray-200;
+  }
 }
 
 .uppy-ProviderBrowser-body {
@@ -245,6 +292,14 @@
   list-style: none;
   margin: 0;
   padding: 0;
+
+  [data-uppy-theme="dark"] & {
+    background-color: $gray-900;
+  }
+
+  &:focus {
+    outline: none;
+  }
 }
 
 .uppy-ProviderBrowserItem-inner {
@@ -256,12 +311,17 @@
 .uppy-ProviderBrowser-footer {
   display: flex;
   align-items: center;
-  background: $white;
+  background-color: $white;
   height: 65px;
   border-top: 1px solid $gray-200;
   padding: 0 15px;
 
   & button {
-    margin-right: 8px;
+    margin-inline-end: 8px;
+  }
+
+  [data-uppy-theme="dark"] & {
+    background-color: $gray-900;
+    border-top: 1px solid $gray-800;
   }
 }

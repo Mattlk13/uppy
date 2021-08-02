@@ -8,17 +8,24 @@ const logger = require('../logger')
  *
  * @param {object} req
  * @param {object} res
- * @param {function} next
+ * @param {Function} next
  */
 module.exports = function callback (req, res, next) {
-  const providerName = req.params.providerName
+  const { providerName } = req.params
 
-  if (!req.uppy.providerTokens) {
-    req.uppy.providerTokens = {}
+  if (!req.companion.providerTokens) {
+    req.companion.providerTokens = {}
   }
 
-  req.uppy.providerTokens[providerName] = req.session.grant.response.access_token
-  logger.debug(`Generating auth token for provider ${providerName}.`, null, req.id)
-  const uppyAuthToken = tokenService.generateToken(req.uppy.providerTokens, req.uppy.options.secret)
-  return res.redirect(req.uppy.buildURL(`/${providerName}/send-token?uppyAuthToken=${uppyAuthToken}`, true))
+  const grant = req.session.grant || {}
+  if (grant.response && grant.response.access_token) {
+    req.companion.providerTokens[providerName] = grant.response.access_token
+    logger.debug(`Generating auth token for provider ${providerName}`, null, req.id)
+    const uppyAuthToken = tokenService.generateEncryptedToken(req.companion.providerTokens, req.companion.options.secret)
+    return res.redirect(req.companion.buildURL(`/${providerName}/send-token?uppyAuthToken=${uppyAuthToken}`, true))
+  }
+
+  logger.debug(`Did not receive access token for provider ${providerName}`, null, req.id)
+  logger.debug(grant.response, 'callback.oauth.resp', req.id)
+  return res.sendStatus(400)
 }

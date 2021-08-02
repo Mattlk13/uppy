@@ -38,7 +38,7 @@ function selectFakeFile (uppyID, name, type, b64) {
     source: 'test',
     name: name || 'test-file',
     type: blob.type,
-    data: blob
+    data: blob,
   })
 }
 
@@ -55,9 +55,9 @@ function supportsChooseFile () {
   if (process.env.CI) return false
 
   // Webdriver for Safari and Edge doesn’t support .chooseFile
-  return capabilities.browserName !== 'Safari' &&
-         capabilities.browserName !== 'MicrosoftEdge' &&
-         capabilities.platformName !== 'Android'
+  return capabilities.browserName !== 'Safari'
+         && capabilities.browserName !== 'MicrosoftEdge'
+         && capabilities.platformName !== 'Android'
 }
 
 function prematureExit () {
@@ -67,7 +67,7 @@ function prematureExit () {
 class CompanionService {
   onPrepare () {
     this.companion = spawn('node', [
-      path.join(__dirname, '../../packages/@uppy/companion/lib/standalone/start-server')
+      path.join(__dirname, '../../packages/@uppy/companion/lib/standalone/start-server'),
     ], {
       stdio: 'pipe',
       env: {
@@ -80,8 +80,8 @@ class CompanionService {
         COMPANION_DROPBOX_KEY: process.env.TEST_COMPANION_DROPBOX_KEY,
         COMPANION_DROPBOX_SECRET: process.env.TEST_COMPANION_DROPBOX_SECRET,
         COMPANION_GOOGLE_KEY: process.env.TEST_COMPANION_GOOGLE_KEY,
-        COMPANION_GOOGLE_SECRET: process.env.TEST_COMPANION_GOOGLE_SECRET
-      }
+        COMPANION_GOOGLE_SECRET: process.env.TEST_COMPANION_GOOGLE_SECRET,
+      },
     })
     return new Promise((resolve, reject) => {
       this.companion.on('error', reject)
@@ -107,6 +107,7 @@ class CompanionService {
 }
 
 const express = require('express')
+
 class StaticServerService {
   constructor ({ folders, staticServerPort = 4567 }) {
     this.folders = folders
@@ -140,6 +141,10 @@ const tus = require('tus-node-server')
 const os = require('os')
 const rimraf = promisify(require('rimraf'))
 const { randomBytes } = require('crypto')
+const http = require('http')
+const httpProxy = require('http-proxy')
+const brake = require('brake')
+
 class TusService {
   constructor ({ tusServerPort = 1080 }) {
     this.port = tusServerPort
@@ -150,19 +155,40 @@ class TusService {
     this.tusServer = new tus.Server()
     this.tusServer.datastore = new tus.FileStore({
       path: '/files',
-      directory: this.path
+      directory: this.path,
+    })
+
+    const proxy = httpProxy.createProxyServer()
+    this.slowServer = http.createServer((req, res) => {
+      proxy.web(req, res, {
+        target: 'http://localhost:1080',
+        // 200 kbps max upload, checking the rate limit every 20ms
+        buffer: req.pipe(brake({
+          period: 20,
+          rate: 200 * 1024 / 50,
+        })),
+      }, (err) => { // eslint-disable-line handle-callback-err
+        // ignore, typically a cancelled request
+      })
     })
 
     const listen = promisify(this.tusServer.listen.bind(this.tusServer))
     this.server = await listen({ host: '0.0.0.0', port: this.port })
+    const listen2 = promisify(this.slowServer.listen.bind(this.slowServer))
+    await listen2(this.port + 1)
   }
 
   async onComplete () {
+    if (this.slowServer) {
+      const close = promisify(this.slowServer.close.bind(this.slowServer))
+      await close()
+    }
     if (this.server) {
       const close = promisify(this.server.close.bind(this.server))
       await close()
     }
     await rimraf(this.path)
+    this.slowServer = null
     this.tusServer = null
   }
 }
@@ -173,5 +199,5 @@ module.exports = {
   supportsChooseFile,
   CompanionService,
   StaticServerService,
-  TusService
+  TusService,
 }

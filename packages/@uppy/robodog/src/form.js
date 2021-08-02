@@ -2,6 +2,7 @@ const Uppy = require('@uppy/core')
 const Form = require('@uppy/form')
 const StatusBar = require('@uppy/status-bar')
 const findDOMElement = require('@uppy/utils/lib/findDOMElement')
+const has = require('@uppy/utils/lib/hasProperty')
 const AttachFileInputs = require('./AttachFileInputs')
 const TransloaditFormResult = require('./TransloaditFormResult')
 const addDashboardPlugin = require('./addDashboardPlugin')
@@ -9,14 +10,14 @@ const addTransloaditPlugin = require('./addTransloaditPlugin')
 const addProviders = require('./addProviders')
 
 const defaultLocaleStrings = {
-  chooseFiles: 'Choose files'
+  chooseFiles: 'Choose files',
 }
 
 function mergeDefaultLocale (defaults, userProvided = {}) {
   const strings = userProvided.strings || {}
   return {
     ...userProvided,
-    strings: { ...defaults, ...strings }
+    strings: { ...defaults, ...strings },
   }
 }
 
@@ -25,20 +26,20 @@ function form (target, opts) {
 
   opts = {
     ...opts,
-    locale: mergeDefaultLocale(defaultLocaleStrings, opts.locale)
+    locale: mergeDefaultLocale(defaultLocaleStrings, opts.locale),
   }
 
-  const uppy = Uppy(opts)
+  const uppy = new Uppy(opts)
   addTransloaditPlugin(uppy, opts)
 
   uppy.use(TransloaditFormResult, {
     target,
     transloaditPluginId: 'Transloadit',
-    name: 'transloadit'
+    name: 'transloadit',
   })
 
   let submitOnSuccess = true
-  if (opts.hasOwnProperty('submitOnSuccess')) {
+  if (has(opts, 'submitOnSuccess')) {
     submitOnSuccess = !!opts.submitOnSuccess
   }
 
@@ -46,9 +47,9 @@ function form (target, opts) {
     target,
     triggerUploadOnSubmit: true,
     submitOnSuccess,
-    addResultToForm: false // using custom implementation instead
+    addResultToForm: false, // using custom implementation instead
   }
-  if (opts.hasOwnProperty('triggerUploadOnSubmit')) {
+  if (has(opts, 'triggerUploadOnSubmit')) {
     formOptions.triggerUploadOnSubmit = opts.triggerUploadOnSubmit
   }
 
@@ -61,7 +62,7 @@ function form (target, opts) {
     const dashboardId = 'form:Dashboard'
     const dashboardOpts = {
       id: dashboardId,
-      target: dashboardTarget
+      target: dashboardTarget,
     }
     if (opts.modal) {
       const trigger = 'input[type="file"]'
@@ -81,7 +82,7 @@ function form (target, opts) {
     if (Array.isArray(opts.providers)) {
       addProviders(uppy, opts.providers, {
         ...opts,
-        target: uppy.getPlugin(dashboardId)
+        target: uppy.getPlugin(dashboardId),
       })
     }
   } else {
@@ -97,7 +98,7 @@ function form (target, opts) {
       hideAfterFinish: true,
       hideRetryButton: true,
       hidePauseResumeButtons: true,
-      hideCancelButtons: true
+      hideCancelButtons: true,
     })
   }
 

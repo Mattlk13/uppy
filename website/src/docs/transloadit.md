@@ -4,8 +4,8 @@ order: 10
 title: "Transloadit"
 module: "@uppy/transloadit"
 permalink: docs/transloadit/
-category: 'File Processing'
-tagline: manipulate and transcode uploaded files using the <a href="https://transloadit.com">transloadit.com</a> service
+category: "File Processing"
+tagline: "manipulate and transcode uploaded files using the <a href='https://transloadit.com'>transloadit.com</a> service"
 ---
 
 The `@uppy/transloadit` plugin can be used to upload files to [Transloadit](https://transloadit.com/) for all kinds of processing, such as transcoding video, resizing images, zipping/unzipping, [and much more](https://transloadit.com/services/).
@@ -27,7 +27,8 @@ uppy.use(Transloadit, {
   importFromUploadURLs: false,
   alwaysRunAssembly: false,
   signature: null,
-  fields: {}
+  fields: {},
+  limit: 0
 })
 ```
 
@@ -60,7 +61,7 @@ const Dropbox = require('@uppy/dropbox')
 const Transloadit = require('@uppy/transloadit')
 
 uppy.use(Dropbox, {
-  companionUrl: Transloadit.COMPANION
+  companionUrl: Transloadit.COMPANION,
   companionAllowedHosts: Transloadit.COMPANION_PATTERN
 })
 ```
@@ -86,7 +87,7 @@ const Dropbox = require('@uppy/dropbox')
 const Transloadit = require('@uppy/transloadit')
 
 uppy.use(Dropbox, {
-  companionUrl: Transloadit.COMPANION
+  companionUrl: Transloadit.COMPANION,
   companionAllowedHosts: Transloadit.COMPANION_PATTERN
 })
 ```
@@ -119,8 +120,8 @@ uppy.use(Transloadit, {
       encode: {
         robot: '/video/encode',
         use: {
-          steps: [ ':original' ],
-          fields: [ 'file_input_field2' ]
+          steps: [':original'],
+          fields: ['file_input_field2']
         },
         preset: 'iphone'
       }
@@ -129,14 +130,23 @@ uppy.use(Transloadit, {
 })
 ```
 
+<a id="waitForEncoding"></a>
+### `waitForEncoding: false`
 
-### `waitForEncoding`
+By default, the Transloadit plugin uploads files to Assemblies and then marks the files as complete in Uppy. The Assemblies will complete (or error) in the background but Uppy won't know or care about it.
 
-Configures whether or not to wait for all Assemblies to complete before completing the upload.
+When `waitForEncoding` is set to true, the Transloadit plugin waits for Assemblies to complete before the files are marked as completed. This means users have to wait for a potentially long time, depending on how complicated your Assembly instructions are. But, you can receive transcoding results on the client side, and have a fully client-side experience this way.
 
-### `waitForMetadata`
+When this is enabled, you can listen for the [`transloadit:result`](#transloadit-result) and [`transloadit:complete`](#transloadit-complete) events.
 
-Configures whether or not to wait for metadata to be extracted from uploaded files before completing the upload. If `waitForEncoding` is enabled, this has no effect.
+<a id="waitForMetadata"></a>
+### `waitForMetadata: false`
+
+By default, the Transloadit plugin uploads files to Assemblies and then marks the files as complete in Uppy. The Assemblies will complete (or error) in the background but Uppy won't know or care about it.
+
+When `waitForMetadata` is set to true, the Transloadit plugin waits for Transloadit's backend to extract metadata from all the uploaded files. This is mostly handy if you want to have a quick user experience (so your users don't necessarily need to wait for all the encoding to complete), but you do want to let users know about some types of errors that can be caught early on, like file format issues.
+
+When this is enabled, you can listen for the [`transloadit:upload`](#transloadit-upload) event.
 
 ### `importFromUploadURLs`
 
@@ -161,7 +171,7 @@ uppy.use(Transloadit, {
 })
 ```
 
-In order for this to work, the upload plugin must assign a publically accessible `uploadURL` property to the uploaded file object. The Tus and S3 plugins both do this automatically. For the XHRUpload plugin, you may have to specify a custom `getUploadResponse` function.
+In order for this to work, the upload plugin must assign a publically accessible `uploadURL` property to the uploaded file object. The Tus and S3 plugins both do this automatically. For the XHRUpload plugin, you may have to specify a custom `getResponseData` function.
 
 ### `alwaysRunAssembly`
 
@@ -189,7 +199,7 @@ uppy.use(Transloadit, {
 You can also pass an array of field names to send global or file metadata along to the Assembly. Global metadata is set using the [`meta` option](/docs/uppy/#meta) in the Uppy constructor, or using the [`setMeta` method](/docs/uppy/#uppy-setMeta-data). File metadata is set using the [`setFileMeta`](/docs/uppy/#uppy-setFileMeta-fileID-data) method. The [Form](/docs/form) plugin also sets global metadata based on the values of `<input />`s in the form, providing a handy way to use values from HTML form fields:
 
 ```js
-uppy.use(Form, { target: 'form#my-form', getMetaFromForm: true })
+uppy.use(Form, { target: 'form#upload-form', getMetaFromForm: true })
 uppy.use(Transloadit, {
   fields: ['field_name', 'other_field_name'],
   params: { ... }
@@ -257,6 +267,10 @@ uppy.use(Transloadit, {
 })
 ```
 
+### `limit: 0`
+
+Limit the amount of uploads going on at the same time. Setting this to `0` means there is no limit on concurrent uploads. This option is passed through to the [`@uppy/tus`](/docs/tus) plugin that Transloadit plugin uses internally.
+
 ### `locale: {}`
 
 Localize text that is shown to the user.
@@ -282,7 +296,8 @@ If an error occurs when an Assembly has already started, you can find the Assemb
 ```js
 uppy.on('error', (error) => {
   if (error.assembly) {
-    console.log(`${error.assembly.assembly_id} failed!`)
+    console.log(`Assembly ID ${error.assembly.assembly_id} failed!`)
+    console.log(error.assembly)
   }
 })
 ```
@@ -323,7 +338,7 @@ Fired when Transloadit has received all uploads, and is currently executing the 
 
 **Parameters**
 
- - `assembly` - The [Assembly Status](https://transloadit.com/docs/api-docs/#assembly-status-response) of the Assembly that is currently executing.
+ - `assembly` - The [Assembly Status](https://transloadit.com/docs/api/#assembly-status-response) of the Assembly that is currently executing.
 
 ### `transloadit:result`
 
@@ -364,4 +379,4 @@ uppy.on('transloadit:complete', (assembly) => {
 })
 ```
 
-[assembly-status]: https://transloadit.com/docs/api-docs/#assembly-status-response
+[assembly-status]: https://transloadit.com/docs/api/#assembly-status-response

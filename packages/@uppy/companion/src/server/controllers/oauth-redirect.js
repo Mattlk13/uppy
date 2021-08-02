@@ -1,5 +1,5 @@
 const qs = require('querystring')
-const parseUrl = require('url').parse // eslint-disable-line node/no-deprecated-api
+const { URL } = require('url')
 const { hasMatch } = require('../helpers/utils')
 const oAuthState = require('../helpers/oauth-state')
 
@@ -9,16 +9,22 @@ const oAuthState = require('../helpers/oauth-state')
  * @param {object} res
  */
 module.exports = function oauthRedirect (req, res) {
-  if (!req.query.state) {
-    return res.status(400).send('Cannot find state param in reques')
+  const params = qs.stringify(req.query)
+  const { authProvider } = req.companion.provider
+  if (!req.companion.options.server.oauthDomain) {
+    return res.redirect(req.companion.buildURL(`/connect/${authProvider}/callback?${params}`, true))
   }
-  const handler = oAuthState.getFromState(req.query.state, 'uppyInstance', req.uppy.options.secret)
-  const handlerHostName = parseUrl(handler).host
 
-  if (hasMatch(handlerHostName, req.uppy.options.server.validHosts)) {
-    const providerName = req.uppy.provider.authProvider
-    const params = qs.stringify(req.query)
-    const url = `${handler}/connect/${providerName}/callback?${params}`
+  const dynamic = (req.session.grant || {}).dynamic || {}
+  const { state } = dynamic
+  if (!state) {
+    return res.status(400).send('Cannot find state in session')
+  }
+  const handler = oAuthState.getFromState(state, 'companionInstance', req.companion.options.secret)
+  const handlerHostName = (new URL(handler)).host
+
+  if (hasMatch(handlerHostName, req.companion.options.server.validHosts)) {
+    const url = `${handler}/connect/${authProvider}/callback?${params}`
     return res.redirect(url)
   }
 

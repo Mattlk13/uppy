@@ -10,11 +10,11 @@ es_ES.strings = {
   back: 'Atrás',
   addMore: 'Agregar más',
   browse: 'navegar',
+  browseFiles: 'navegar',
   cancel: 'Cancelar',
   cancelUpload: 'Cancelar subida',
   chooseFiles: 'Seleccionar archivos',
   closeModal: 'Cerrar ventana flotante',
-  companionAuthError: 'Autorización requerida',
   companionError: 'Conexión con Companion falló',
   complete: 'Completado',
   connectedToInternet: 'Conectado a Internet',
@@ -29,9 +29,12 @@ es_ES.strings = {
   done: 'Hecho',
   dropHereOr: 'Soltar archivos aquí o %{browse}',
   dropHint: 'Suelta tus archivos aquí',
-  dropPaste: 'Soltar archivos aquí, pegar o %{browse}',
-  dropPasteImport: 'Soltar archivos aquí, pegar, %{browse} o importar desde',
-  edit: 'Editar',
+  dropPasteBoth: 'Soltar archivos aquí, pegar o %{browse}',
+  dropPasteFiles: 'Soltar archivos aquí, pegar o %{browse}',
+  dropPasteFolders: 'Soltar archivos aquí, pegar o %{browse}',
+  dropPasteImportBoth: 'Soltar archivos aquí, pegar, %{browse} o importar desde',
+  dropPasteImportFiles: 'Soltar archivos aquí, pegar, %{browse} o importar desde',
+  dropPasteImportFolders: 'Soltar archivos aquí, pegar, %{browse} o importar desde',
   editFile: 'Editar archivo',
   editing: 'Editando %{file}',
   emptyFolderAdded: 'Ningún archivo fue agregado desde la carpeta vacía',
@@ -45,18 +48,17 @@ es_ES.strings = {
   filesUploadedOfTotal: {
     '0': '%{complete} de %{smart_count} archivo subido',
     '1': '%{complete} de %{smart_count} archivos subidos',
-    '2': '%{complete} de %{smart_count} archivos subidos'
+    '2': '%{complete} de %{smart_count} archivos subidos',
   },
   filter: 'Filtrar',
   finishEditingFile: 'Terminar edición de archivo',
   folderAdded: {
     '0': 'Agregado %{smart_count} archivo desde %{folder}',
     '1': 'Agregados %{smart_count} archivos desde %{folder}',
-    '2': 'Agregados %{smart_count} archivos desde %{folder}'
+    '2': 'Agregados %{smart_count} archivos desde %{folder}',
   },
   import: 'Importar',
   importFrom: 'Importar desde %{name}',
-  link: 'Enlace',
   loading: 'Cargando...',
   logOut: 'Cerrar sesión',
   myDevice: 'Mi Dispositivo',
@@ -66,12 +68,12 @@ es_ES.strings = {
   pauseUpload: 'Pausar subida',
   paused: 'En pausa',
   poweredBy: 'Soportado por',
-  preparingUpload: 'Preparando subida...',
   processingXFiles: {
     '0': 'Procesando %{smart_count} archivo',
     '1': 'Procesando %{smart_count} archivos',
-    '2': 'Procesando %{smart_count} archivos'
+    '2': 'Procesando %{smart_count} archivos',
   },
+  recordingLength: 'Duración de grabación %{recording_length}',
   removeFile: 'Eliminar archivo',
   resetFilter: 'Limpiar filtro',
   resume: 'Reanudar',
@@ -82,7 +84,7 @@ es_ES.strings = {
   selectX: {
     '0': 'Seleccionar %{smart_count}',
     '1': 'Seleccionar %{smart_count}',
-    '2': 'Seleccionar %{smart_count}'
+    '2': 'Seleccionar %{smart_count}',
   },
   smile: 'Sonríe!',
   startRecording: 'Comenzar la grabación de video',
@@ -96,46 +98,46 @@ es_ES.strings = {
   uploadXFiles: {
     '0': 'Subir %{smart_count} archivo',
     '1': 'Subir %{smart_count} archivos',
-    '2': 'Subir %{smart_count} archivos'
+    '2': 'Subir %{smart_count} archivos',
   },
   uploadXNewFiles: {
     '0': 'Subir +%{smart_count} archivo',
     '1': 'Subir +%{smart_count} archivos',
-    '2': 'Subir +%{smart_count} archivos'
+    '2': 'Subir +%{smart_count} archivos',
   },
   uploading: 'Subiendo',
   uploadingXFiles: {
     '0': 'Subiendo %{smart_count} archivo',
     '1': 'Subiendo %{smart_count} archivos',
-    '2': 'Subiendo %{smart_count} archivos'
+    '2': 'Subiendo %{smart_count} archivos',
   },
   xFilesSelected: {
     '0': '%{smart_count} archivo seleccionado',
     '1': '%{smart_count} archivos seleccionados',
-    '2': '%{smart_count} archivos seleccionados'
+    '2': '%{smart_count} archivos seleccionados',
   },
   xMoreFilesAdded: {
     '0': '%{smart_count} archivo más agregado',
     '1': '%{smart_count} archivos más agregados',
-    '2': '%{smart_count} archivos más agregados'
+    '2': '%{smart_count} archivos más agregados',
   },
   xTimeLeft: '%{time} restantes',
   youCanOnlyUploadFileTypes: 'Solo puedes subir: %{types}',
   youCanOnlyUploadX: {
     '0': 'Solo puedes subir %{smart_count} archivo',
     '1': 'Solo puedes subir %{smart_count} archivos',
-    '2': 'Solo puedes subir %{smart_count} archivos'
+    '2': 'Solo puedes subir %{smart_count} archivos',
   },
   youHaveToAtLeastSelectX: {
     '0': 'Tienes que seleccionar al menos %{smart_count} archivo',
     '1': 'Tienes que seleccionar al menos %{smart_count} archivos',
-    '2': 'Tienes que seleccionar al menos %{smart_count} archivos'
+    '2': 'Tienes que seleccionar al menos %{smart_count} archivos',
   },
   selectAllFilesFromFolderNamed: 'Seleccionar todos los archivos de la carpeta %{name}',
   unselectAllFilesFromFolderNamed: 'Deselecciona todos los archivos de la carpeta %{name}',
   selectFileNamed: 'Seleccione archivo %{name}',
   unselectFileNamed: 'Deseleccionar archivo %{name}',
-  openFolderNamed: 'Carpeta abierta %{name}'
+  openFolderNamed: 'Carpeta abierta %{name}',
 }
 
 es_ES.pluralize = function (n) {

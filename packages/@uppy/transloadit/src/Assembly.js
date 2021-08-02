@@ -1,6 +1,9 @@
 const io = requireSocketIo
 const Emitter = require('component-emitter')
+const has = require('@uppy/utils/lib/hasProperty')
 const parseUrl = require('./parseUrl')
+const NetworkError = require('@uppy/utils/lib/NetworkError')
+const fetchWithNetworkError = require('@uppy/utils/lib/fetchWithNetworkError')
 
 // Lazy load socket.io to avoid a console error
 // in IE 10 when the Transloadit plugin is not used.
@@ -22,7 +25,7 @@ const ASSEMBLY_COMPLETED = 'ASSEMBLY_COMPLETED'
 const statusOrder = [
   ASSEMBLY_UPLOADING,
   ASSEMBLY_EXECUTING,
-  ASSEMBLY_COMPLETED
+  ASSEMBLY_COMPLETED,
 ]
 
 /**
@@ -67,16 +70,22 @@ class TransloaditAssembly extends Emitter {
     const parsed = parseUrl(this.status.websocket_url)
     const socket = io().connect(parsed.origin, {
       transports: ['websocket'],
-      path: parsed.pathname
+      path: parsed.pathname,
     })
 
     socket.on('connect', () => {
       socket.emit('assembly_connect', {
-        id: this.status.assembly_id
+        id: this.status.assembly_id,
       })
 
       this.emit('connect')
     })
+
+    socket.on('connect_failed', () => {
+      this._onError(new NetworkError('Transloadit Socket.io connection error'))
+      this.socket = null
+    })
+
     socket.on('error', () => {
       socket.disconnect()
       this.socket = null
@@ -142,7 +151,7 @@ class TransloaditAssembly extends Emitter {
    * 'status'.
    */
   _fetchStatus ({ diff = true } = {}) {
-    return fetch(this.status.assembly_ssl_url)
+    return fetchWithNetworkError(this.status.assembly_ssl_url)
       .then((response) => response.json())
       .then((status) => {
         // Avoid updating if we closed during this request's lifetime.
@@ -155,6 +164,7 @@ class TransloaditAssembly extends Emitter {
           this.status = status
         }
       })
+      .catch((err) => this._onError(err))
   }
 
   update () {
@@ -165,7 +175,7 @@ class TransloaditAssembly extends Emitter {
    * Update this assembly's status with a full new object. Events will be
    * emitted for status changes, new files, and new results.
    *
-   * @param {Object} next The new assembly status object.
+   * @param {object} next The new assembly status object.
    */
   updateStatus (next) {
     this._diffStatus(this.status, next)
@@ -176,8 +186,8 @@ class TransloaditAssembly extends Emitter {
    * Diff two assembly statuses, and emit the events necessary to go from `prev`
    * to `next`.
    *
-   * @param {Object} prev The previous assembly status.
-   * @param {Object} next The new assembly status.
+   * @param {object} prev The previous assembly status.
+   * @param {object} next The new assembly status.
    */
   _diffStatus (prev, next) {
     const prevStatus = prev.ok
@@ -196,9 +206,9 @@ class TransloaditAssembly extends Emitter {
     // The below checks run in this order, that way even if we jump from
     // UPLOADING straight to FINISHED all the events are emitted as expected.
 
-    const nowExecuting =
-      isStatus(nextStatus, ASSEMBLY_EXECUTING) &&
-      !isStatus(prevStatus, ASSEMBLY_EXECUTING)
+    const nowExecuting
+      = isStatus(nextStatus, ASSEMBLY_EXECUTING)
+      && !isStatus(prevStatus, ASSEMBLY_EXECUTING)
     if (nowExecuting) {
       // Without WebSockets, this is our only way to tell if uploading finished.
       // Hence, we emit this just before the 'upload's and before the 'metadata'
@@ -209,9 +219,7 @@ class TransloaditAssembly extends Emitter {
 
     // Find new uploaded files.
     Object.keys(next.uploads)
-      .filter((upload) => (
-        !prev.uploads.hasOwnProperty(upload)
-      ))
+      .filter((upload) => !has(prev.uploads, upload))
       .map((upload) => next.uploads[upload])
       .forEach((upload) => {
         this.emit('upload', upload)
@@ -233,8 +241,8 @@ class TransloaditAssembly extends Emitter {
         })
     })
 
-    if (isStatus(nextStatus, ASSEMBLY_COMPLETED) &&
-        !isStatus(prevStatus, ASSEMBLY_COMPLETED)) {
+    if (isStatus(nextStatus, ASSEMBLY_COMPLETED)
+        && !isStatus(prevStatus, ASSEMBLY_COMPLETED)) {
       this.emit('finished')
     }
   }

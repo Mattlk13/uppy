@@ -30,7 +30,7 @@ function debounce (fn) {
  *
  * @param {object} main Uppy core object
  * @param {object} object with plugin options
- * @return {array | string} files or success/fail message
+ * @returns {Array|string} files or success/fail message
  */
 module.exports = class Plugin {
   constructor (uppy, opts) {
@@ -56,10 +56,15 @@ module.exports = class Plugin {
         ...plugins,
         [this.id]: {
           ...plugins[this.id],
-          ...update
-        }
-      }
+          ...update,
+        },
+      },
     })
+  }
+
+  setOptions (newOpts) {
+    this.opts = { ...this.opts, ...newOpts }
+    this.setPluginState() // so that UI re-renders with new options
   }
 
   update (state) {
@@ -78,11 +83,11 @@ module.exports = class Plugin {
   }
 
   /**
-  * Called when plugin is mounted, whether in DOM or into another plugin.
-  * Needed because sometimes plugins are mounted separately/after `install`,
-  * so this.el and this.parent might not be available in `install`.
-  * This is the case with @uppy/react plugins, for example.
-  */
+   * Called when plugin is mounted, whether in DOM or into another plugin.
+   * Needed because sometimes plugins are mounted separately/after `install`,
+   * so this.el and this.parent might not be available in `install`.
+   * This is the case with @uppy/react plugins, for example.
+   */
   onMount () {
 
   }
@@ -92,7 +97,7 @@ module.exports = class Plugin {
    * If it’s an object — target is a plugin, and we search `plugins`
    * for a plugin with same name and return its target.
    *
-   * @param {string|Object} target
+   * @param {string|object} target
    *
    */
   mount (target, plugin) {
@@ -153,9 +158,20 @@ module.exports = class Plugin {
     }
 
     this.uppy.log(`Not installing ${callerPluginName}`)
-    throw new Error(`Invalid target option given to ${callerPluginName}. Please make sure that the element
-      exists on the page, or that the plugin you are targeting has been installed. Check that the <script> tag initializing Uppy
-      comes at the bottom of the page, before the closing </body> tag (see https://github.com/transloadit/uppy/issues/1042).`)
+
+    let message = `Invalid target option given to ${callerPluginName}.`
+    if (typeof target === 'function') {
+      message += ' The given target is not a Plugin class. '
+        + 'Please check that you\'re not specifying a React Component instead of a plugin. '
+        + 'If you are using @uppy/* packages directly, make sure you have only 1 version of @uppy/core installed: '
+        + 'run `npm ls @uppy/core` on the command line and verify that all the versions match and are deduped correctly.'
+    } else {
+      message += 'If you meant to target an HTML element, please make sure that the element exists. '
+        + 'Check that the <script> tag initializing Uppy is right before the closing </body> tag at the end of the page. '
+        + '(see https://github.com/transloadit/uppy/issues/1042)\n\n'
+        + 'If you meant to target a plugin, please confirm that your `import` statements or `require` calls are correct.'
+    }
+    throw new Error(message)
   }
 
   render (state) {

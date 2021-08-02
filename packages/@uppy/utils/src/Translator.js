@@ -1,3 +1,5 @@
+const has = require('./hasProperty')
+
 /**
  * Translates strings with interpolation & pluralization support.
  * Extensible with custom dictionaries and pluralization functions.
@@ -11,17 +13,17 @@
  */
 module.exports = class Translator {
   /**
-   * @param {Object|Array<Object>} locales - locale or list of locales.
+   * @param {object|Array<object>} locales - locale or list of locales.
    */
   constructor (locales) {
     this.locale = {
       strings: {},
-      pluralize: function (n) {
+      pluralize (n) {
         if (n === 1) {
           return 0
         }
         return 1
-      }
+      },
     }
 
     if (Array.isArray(locales)) {
@@ -37,9 +39,7 @@ module.exports = class Translator {
     }
 
     const prevLocale = this.locale
-    this.locale = Object.assign({}, prevLocale, {
-      strings: Object.assign({}, prevLocale.strings, locale.strings)
-    })
+    this.locale = { ...prevLocale, strings: { ...prevLocale.strings, ...locale.strings } }
     this.locale.pluralize = locale.pluralize || prevLocale.pluralize
   }
 
@@ -51,8 +51,8 @@ module.exports = class Translator {
    * taken from https://github.com/airbnb/polyglot.js/blob/master/lib/polyglot.js#L299
    *
    * @param {string} phrase that needs interpolation, with placeholders
-   * @param {Object} options with values that will be used to replace placeholders
-   * @returns {string} interpolated
+   * @param {object} options with values that will be used to replace placeholders
+   * @returns {any[]} interpolated
    */
   interpolate (phrase, options) {
     const { split, replace } = String.prototype
@@ -60,8 +60,8 @@ module.exports = class Translator {
     const dollarBillsYall = '$$$$'
     let interpolated = [phrase]
 
-    for (let arg in options) {
-      if (arg !== '_' && options.hasOwnProperty(arg)) {
+    for (const arg in options) {
+      if (arg !== '_' && has(options, arg)) {
         // Ensure replacement value is escaped to prevent special $-prefixed
         // regex replace tokens. the "$$$$" is needed because each "$" needs to
         // be escaped with "$" itself, and we need two in the resulting output.
@@ -72,7 +72,7 @@ module.exports = class Translator {
         // We create a new `RegExp` each time instead of using a more-efficient
         // string replace so that the same argument can be replaced multiple times
         // in the same phrase.
-        interpolated = insertReplacement(interpolated, new RegExp('%\\{' + arg + '\\}', 'g'), replacement)
+        interpolated = insertReplacement(interpolated, new RegExp(`%\\{${arg}\\}`, 'g'), replacement)
       }
     }
 
@@ -81,6 +81,14 @@ module.exports = class Translator {
     function insertReplacement (source, rx, replacement) {
       const newParts = []
       source.forEach((chunk) => {
+        // When the source contains multiple placeholders for interpolation,
+        // we should ignore chunks that are not strings, because those
+        // can be JSX objects and will be otherwise incorrectly turned into strings.
+        // Without this condition we’d get this: [object Object] hello [object Object] my <button>
+        if (typeof chunk !== 'string') {
+          return newParts.push(chunk)
+        }
+
         split.call(chunk, rx).forEach((raw, i, list) => {
           if (raw !== '') {
             newParts.push(raw)
@@ -100,7 +108,7 @@ module.exports = class Translator {
    * Public translate method
    *
    * @param {string} key
-   * @param {Object} options with values that will be used later to replace placeholders in string
+   * @param {object} options with values that will be used later to replace placeholders in string
    * @returns {string} translated (and interpolated)
    */
   translate (key, options) {
@@ -111,15 +119,25 @@ module.exports = class Translator {
    * Get a translation and return the translated and interpolated parts as an array.
    *
    * @param {string} key
-   * @param {Object} options with values that will be used to replace placeholders
+   * @param {object} options with values that will be used to replace placeholders
    * @returns {Array} The translated and interpolated parts, in order.
    */
   translateArray (key, options) {
-    if (options && typeof options.smart_count !== 'undefined') {
-      var plural = this.locale.pluralize(options.smart_count)
-      return this.interpolate(this.locale.strings[key][plural], options)
+    if (!has(this.locale.strings, key)) {
+      throw new Error(`missing string: ${key}`)
     }
 
-    return this.interpolate(this.locale.strings[key], options)
+    const string = this.locale.strings[key]
+    const hasPluralForms = typeof string === 'object'
+
+    if (hasPluralForms) {
+      if (options && typeof options.smart_count !== 'undefined') {
+        const plural = this.locale.pluralize(options.smart_count)
+        return this.interpolate(string[plural], options)
+      }
+      throw new Error('Attempted to use a string with plural forms, but no value was given for %{smart_count}')
+    }
+
+    return this.interpolate(string, options)
   }
 }

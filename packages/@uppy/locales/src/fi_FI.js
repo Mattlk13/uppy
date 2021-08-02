@@ -10,11 +10,11 @@ fi_FI.strings = {
   authenticateWithTitle: '%{pluginName} vaadittu tunnistautumiseen, jotta voit valita tiedostoja',
   back: 'Takaisin',
   browse: 'selaa',
+  browseFiles: 'selaa',
   cancel: 'Peruuta',
   cancelUpload: 'Peruuta lähetys',
   chooseFiles: 'Valitse tiedostot',
   closeModal: 'Sulje ikkuna',
-  companionAuthError: 'Käyttöoikeus vaadittu',
   companionError: 'Yhdistäminen Companioniin epäonnistui',
   complete: 'Valmis',
   connectedToInternet: 'Yhdistetty Internettiin',
@@ -29,9 +29,12 @@ fi_FI.strings = {
   done: 'Valmis',
   dropHereOr: 'Raahaa tiedostot tähän tai %{browse}',
   dropHint: 'Raahaa tiedostot tähän',
-  dropPaste: 'Raahaa tiedostot tähän, liitä tai %{browse}',
-  dropPasteImport: 'Raahaa tiedostot tähän, liitä, %{browse} tai tuo',
-  edit: 'Muokkaa',
+  dropPasteBoth: 'Raahaa tiedostot tähän, liitä tai %{browse}',
+  dropPasteFiles: 'Raahaa tiedostot tähän, liitä tai %{browse}',
+  dropPasteFolders: 'Raahaa tiedostot tähän, liitä tai %{browse}',
+  dropPasteImportBoth: 'Raahaa tiedostot tähän, liitä, %{browse} tai tuo',
+  dropPasteImportFiles: 'Raahaa tiedostot tähän, liitä, %{browse} tai tuo',
+  dropPasteImportFolders: 'Raahaa tiedostot tähän, liitä, %{browse} tai tuo',
   editFile: 'Muokkaa tiedostoa',
   editing: 'Muokataan %{file}',
   emptyFolderAdded: 'Ei lisätty tiedostoja tyhjästä kansiosta',
@@ -45,18 +48,17 @@ fi_FI.strings = {
   filesUploadedOfTotal: {
     '0': '%{complete} / %{smart_count} tiedostosta lähetetty',
     '1': '%{complete} / %{smart_count} tiedostoa lähetetty',
-    '2': '%{complete} / %{smart_count} tiedostoa lähetetty'
+    '2': '%{complete} / %{smart_count} tiedostoa lähetetty',
   },
   filter: 'Suodata',
   finishEditingFile: 'Lopeta tiedoston muokkaus',
   folderAdded: {
     '0': 'Lisätty %{smart_count} tiedosto kansiosta %{folder}',
     '1': 'Lisätty %{smart_count} tiedostoa kansiosta %{folder}',
-    '2': 'Lisätty %{smart_count} tiedostoa kansiosta %{folder}'
+    '2': 'Lisätty %{smart_count} tiedostoa kansiosta %{folder}',
   },
   import: 'Tuo',
   importFrom: 'Tuo %{name}',
-  link: 'Linkki',
   loading: 'Ladataan...',
   logOut: 'Kirjaudu ulos',
   myDevice: 'Laitteeltani',
@@ -67,11 +69,10 @@ fi_FI.strings = {
   pauseUpload: 'Keskeytä lähetys',
   paused: 'Keskeytetty',
   poweredBy: 'Powered by',
-  preparingUpload: 'Valmistellaan lähetystä...',
   processingXFiles: {
     '0': 'Käsitellään %{smart_count} tiedostoa',
     '1': 'Käsitellään %{smart_count} tiedostoa',
-    '2': 'Käsitellään %{smart_count} tiedostoa'
+    '2': 'Käsitellään %{smart_count} tiedostoa',
   },
   removeFile: 'Poista tiedosto',
   resetFilter: 'Resetoi suodatin',
@@ -85,7 +86,7 @@ fi_FI.strings = {
   selectX: {
     '0': 'Valitse %{smart_count}',
     '1': 'Valitse %{smart_count}',
-    '2': 'Valitse %{smart_count}'
+    '2': 'Valitse %{smart_count}',
   },
   smile: 'Hymyile!',
   startRecording: 'Aloita videon tallennus',
@@ -101,41 +102,48 @@ fi_FI.strings = {
   uploadXFiles: {
     '0': 'Lähetä %{smart_count} tiedosto',
     '1': 'Lähetä %{smart_count} tiedostoa',
-    '2': 'Lähetä %{smart_count} tiedostoa'
+    '2': 'Lähetä %{smart_count} tiedostoa',
   },
   uploadXNewFiles: {
     '0': 'Lähetä +%{smart_count} tiedosto',
     '1': 'Lähetä +%{smart_count} tiedostoa',
-    '2': 'Lähetä +%{smart_count} tiedostoa'
+    '2': 'Lähetä +%{smart_count} tiedostoa',
   },
   uploading: 'Lähetetään',
   uploadingXFiles: {
     '0': 'Lähetetään %{smart_count} tiedosto',
     '1': 'Lähetetään %{smart_count} tiedostoa',
-    '2': 'Lähetetään %{smart_count} tiedostoa'
+    '2': 'Lähetetään %{smart_count} tiedostoa',
   },
   xFilesSelected: {
     '0': '%{smart_count} tiedosto valittu',
     '1': '%{smart_count} tiedostoa valittu',
-    '2': '%{smart_count} tiedostoa valittu'
+    '2': '%{smart_count} tiedostoa valittu',
   },
   xMoreFilesAdded: {
     '0': '%{smart_count} tiedosto added',
     '1': '%{smart_count} tiedostoa added',
-    '2': '%{smart_count} tiedostoa added'
+    '2': '%{smart_count} tiedostoa added',
   },
   xTimeLeft: '%{time} jäljellä',
   youCanOnlyUploadFileTypes: 'Sallitut tiedostomuodot: %{types}',
   youCanOnlyUploadX: {
     '0': 'Voit lähettää vain %{smart_count} tiedosto',
     '1': 'Voit lähettää vain %{smart_count} tiedostoa',
-    '2': 'Voit lähettää vain %{smart_count} tiedostoa'
+    '2': 'Voit lähettää vain %{smart_count} tiedostoa',
   },
   youHaveToAtLeastSelectX: {
     '0': 'Sinun pitää valita vähintään %{smart_count} tiedosto',
     '1': 'Sinun pitää valita vähintään %{smart_count} tiedostoa',
-    '2': 'Sinun pitää valita vähintään %{smart_count} tiedostoa'
-  }
+    '2': 'Sinun pitää valita vähintään %{smart_count} tiedostoa',
+  },
+  startCapturing: 'Aloita tallennus',
+  stopCapturing: 'Lopeta tallennus',
+  submitRecordedFile: 'Hyväksy tallenne',
+  streamActive: 'Jako aktiivinen',
+  streamPassive: 'Jako passiivinen',
+  micDisabled: 'Käyttäjä on estänyt mikrofonin',
+  recording: 'Tallennetaan',
 }
 
 fi_FI.pluralize = function (n) {

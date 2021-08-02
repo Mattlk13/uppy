@@ -1,10 +1,11 @@
 const getTimeStamp = require('@uppy/utils/lib/getTimeStamp')
 
-// Swallow logs, default if logger is not set or debug: false
-const nullLogger = {
+// Swallow all logs, except errors.
+// default if logger is not set or debug: false
+const justErrorsLogger = {
   debug: (...args) => {},
   warn: (...args) => {},
-  error: (...args) => {}
+  error: (...args) => console.error(`[Uppy] [${getTimeStamp()}]`, ...args),
 }
 
 // Print logs to console with namespace + timestamp,
@@ -16,10 +17,10 @@ const debugLogger = {
     debug.call(console, `[Uppy] [${getTimeStamp()}]`, ...args)
   },
   warn: (...args) => console.warn(`[Uppy] [${getTimeStamp()}]`, ...args),
-  error: (...args) => console.error(`[Uppy] [${getTimeStamp()}]`, ...args)
+  error: (...args) => console.error(`[Uppy] [${getTimeStamp()}]`, ...args),
 }
 
 module.exports = {
-  nullLogger,
-  debugLogger
+  justErrorsLogger,
+  debugLogger,
 }

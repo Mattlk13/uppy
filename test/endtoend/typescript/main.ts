@@ -6,6 +6,7 @@ import {
   Instagram,
   Dropbox,
   GoogleDrive,
+  Box,
   Url,
   Webcam,
   Tus,
@@ -16,7 +17,7 @@ import {
 const isOnTravis = !!(process.env.TRAVIS && process.env.CI)
 const TUS_ENDPOINT = `http://${isOnTravis ? 'companion.test' : 'localhost'}:1080/files/`
 
-const uppy = Core({
+const uppy = Core<Core.StrictTypes>({
   debug: true,
   meta: {
     username: 'John',
@@ -37,6 +38,7 @@ const uppy = Core({
   .use(GoogleDrive, { target: Dashboard, companionUrl: 'http://localhost:3020' })
   .use(Instagram, { target: Dashboard, companionUrl: 'http://localhost:3020' })
   .use(Dropbox, { target: Dashboard, companionUrl: 'http://localhost:3020' })
+  .use(Box, { target: Dashboard, companionUrl: 'http://localhost:3020' })
   .use(Url, { target: Dashboard, companionUrl: 'http://localhost:3020' })
   .use(Webcam, { target: Dashboard })
   .use(Tus, { endpoint: TUS_ENDPOINT })

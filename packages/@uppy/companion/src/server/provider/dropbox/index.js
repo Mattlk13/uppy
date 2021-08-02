@@ -1,8 +1,10 @@
+const Provider = require('../Provider')
+
 const request = require('request')
 const purest = require('purest')({ request })
 const logger = require('../../logger')
 const adapter = require('./adapter')
-const AuthError = require('../error')
+const { ProviderApiError, ProviderAuthError } = require('../error')
 
 // From https://www.dropbox.com/developers/reference/json-encoding:
 //
@@ -11,16 +13,24 @@ const AuthError = require('../error')
 const charsToEncode = /[\u007f-\uffff]/g
 function httpHeaderSafeJson (v) {
   return JSON.stringify(v).replace(charsToEncode,
-    function (c) {
-      return '\\u' + ('000' + c.charCodeAt(0).toString(16)).slice(-4)
-    }
-  )
+    (c) => {
+      return `\\u${(`000${c.charCodeAt(0).toString(16)}`).slice(-4)}`
+    })
 }
 
-class DropBox {
+/**
+ * Adapter for API https://www.dropbox.com/developers/documentation/http/documentation
+ */
+class DropBox extends Provider {
   constructor (options) {
-    this.authProvider = options.provider = DropBox.authProvider
-    this.client = purest(options)
+    super(options)
+    this.authProvider = DropBox.authProvider
+    this.client = purest({
+      ...options,
+      provider: DropBox.authProvider,
+    })
+    // needed for the thumbnails fetched via companion
+    this.needsCookieAuth = true
   }
 
   static get authProvider () {
@@ -40,7 +50,7 @@ class DropBox {
    * it then waits till both requests are done before proceeding with the callback
    *
    * @param {object} options
-   * @param {function} done
+   * @param {Function} done
    */
   list (options, done) {
     let userInfoDone = false
@@ -49,19 +59,21 @@ class DropBox {
     let stats
     let reqErr
     const finishReq = () => {
-      if (reqErr || stats.statusCode !== 200) {
-        const err = this._error(reqErr, stats)
-        logger.error(err, 'provider.dropbox.list.error')
-        done(err)
+      if (reqErr) {
+        logger.error(reqErr, 'provider.dropbox.list.error')
+        done(reqErr)
       } else {
         stats.body.user_email = userInfo.body.email
-        done(null, this.adaptData(stats.body, options.uppy))
+        done(null, this.adaptData(stats.body, options.companion))
       }
     }
 
     this.stats(options, (err, resp) => {
       statsDone = true
       stats = resp
+      if (err || resp.statusCode !== 200) {
+        err = this._error(err, resp)
+      }
       reqErr = reqErr || err
       if (userInfoDone) {
         finishReq()
@@ -71,6 +83,10 @@ class DropBox {
     this._userInfo(options, (err, resp) => {
       userInfoDone = true
       userInfo = resp
+      if (err || resp.statusCode !== 200) {
+        err = this._error(err, resp)
+      }
+
       reqErr = reqErr || err
       if (statsDone) {
         finishReq()
@@ -85,7 +101,7 @@ class DropBox {
         .options({ version: '2' })
         .auth(token)
         .json({
-          cursor: query.cursor
+          cursor: query.cursor,
         })
         .request(done)
       return
@@ -94,10 +110,11 @@ class DropBox {
     this.client
       .post('files/list_folder')
       .options({ version: '2' })
-      .where(query)
+      .qs(query)
       .auth(token)
       .json({
-        path: `${directory || ''}`
+        path: `${directory || ''}`,
+        include_non_downloadable_files: false,
       })
       .request(done)
   }
@@ -108,15 +125,22 @@ class DropBox {
       .options({
         version: '2',
         headers: {
-          'Dropbox-API-Arg': httpHeaderSafeJson({ path: `${id}` })
-        }
+          'Dropbox-API-Arg': httpHeaderSafeJson({ path: `${id}` }),
+        },
       })
       .auth(token)
       .request()
-      .on('data', onData)
-      .on('end', () => onData(null))
+      .on('response', (resp) => {
+        if (resp.statusCode !== 200) {
+          onData(this._error(null, resp))
+        } else {
+          resp.on('data', (chunk) => onData(null, chunk))
+        }
+      })
+      .on('end', () => onData(null, null))
       .on('error', (err) => {
         logger.error(err, 'provider.dropbox.download.error')
+        onData(err)
       })
   }
 
@@ -126,8 +150,8 @@ class DropBox {
       .options({
         version: '2',
         headers: {
-          'Dropbox-API-Arg': httpHeaderSafeJson({ path: `${id}` })
-        }
+          'Dropbox-API-Arg': httpHeaderSafeJson({ path: `${id}`, size: 'w256h256' }),
+        },
       })
       .auth(token)
       .request()
@@ -160,7 +184,22 @@ class DropBox {
       })
   }
 
-  adaptData (res, uppy) {
+  logout ({ token }, done) {
+    return this.client
+      .post('auth/token/revoke')
+      .options({ version: '2' })
+      .auth(token)
+      .request((err, resp) => {
+        if (err || resp.statusCode !== 200) {
+          logger.error(err, 'provider.dropbox.logout.error')
+          done(this._error(err, resp))
+          return
+        }
+        done(null, { revoked: true })
+      })
+  }
+
+  adaptData (res, companion) {
     const data = { username: adapter.getUsername(res), items: [] }
     const items = adapter.getItemSubList(res)
     items.forEach((item) => {
@@ -170,10 +209,10 @@ class DropBox {
         name: adapter.getItemName(item),
         mimeType: adapter.getMimeType(item),
         id: adapter.getItemId(item),
-        thumbnail: uppy.buildURL(adapter.getItemThumbnailUrl(item), true),
+        thumbnail: companion.buildURL(adapter.getItemThumbnailUrl(item), true),
         requestPath: adapter.getItemRequestPath(item),
         modifiedDate: adapter.getItemModifiedDate(item),
-        size: adapter.getItemSize(item)
+        size: adapter.getItemSize(item),
       })
     })
 
@@ -184,8 +223,9 @@ class DropBox {
 
   _error (err, resp) {
     if (resp) {
-      const errMsg = `request to ${this.authProvider} returned ${resp.statusCode}`
-      return resp.statusCode === 401 ? new AuthError() : new Error(errMsg)
+      const fallbackMessage = `request to ${this.authProvider} returned ${resp.statusCode}`
+      const errMsg = (resp.body || {}).error_summary ? resp.body.error_summary : fallbackMessage
+      return resp.statusCode === 401 ? new ProviderAuthError() : new ProviderApiError(errMsg, resp.statusCode)
     }
 
     return err

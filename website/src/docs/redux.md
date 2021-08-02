@@ -4,8 +4,8 @@ type: docs
 module: "@uppy/store-redux"
 permalink: docs/redux/
 order: 9
-category: 'Miscellaneous'
-tagline: Uppy can use your app’s Redux store for its files and UI state
+category: "Miscellaneous"
+tagline: "Uppy can use your app’s Redux store for its files and UI state"
 ---
 
 Uppy supports the popular [Redux](https://redux.js.org/) state management library in two ways:
@@ -16,19 +16,23 @@ You can tell Uppy to use your app’s Redux store for its files and UI state. Pl
 
 ```js
 const { createStore } = require('redux')
-const ReduxStore = require('@uppy/store-redux')
+const createReduxStore = require('@uppy/store-redux')
 
 const reducer = combineReducers({
   ...reducers,
   uppy: ReduxStore.reducer
 })
 
-const uppy = Uppy({
-  store: ReduxStore({
+const uppy = new Uppy({
+  store: createReduxStore({
     store: createStore(reducer) // That’s a lot of stores!
   })
 })
 ```
+
+Keep in mind that Uppy state is not serializable (because we have to keep track of files with data blobs). So, if you persist your Redux state, you should exclude Uppy state from persistence.
+
+If you’d like to persist your Uppy state — please look into [@uppy/golden-retriever](https://uppy.io/docs/golden-retriever/). It’s a plugin created specifically for saving and restoring Uppy state, including selected files and upload progress.
 
 ## Redux Dev Tools
 
@@ -38,7 +42,7 @@ This is a `ReduxDevTools` plugin that simply syncs with the [redux-devtools](htt
 const Uppy = require('@uppy/core')
 const ReduxDevTools = require('@uppy/redux-dev-tools')
 
-const uppy = Uppy({
+const uppy = new Uppy({
   debug: true,
   meta: {
     username: 'John',

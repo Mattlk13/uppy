@@ -9,9 +9,13 @@ export default function PauseResumeButton (props) {
   return (
     <TouchableHighlight
       onPress={props.onPress}
-      style={styles.button}>
+      style={styles.button}
+    >
       <Text
-        style={styles.text}>{props.isPaused ? 'Resume' : 'Pause'}</Text>
+        style={styles.text}
+      >
+        {props.isPaused ? 'Resume' : 'Pause'}
+      </Text>
     </TouchableHighlight>
   )
 }
@@ -19,11 +23,11 @@ export default function PauseResumeButton (props) {
 const styles = StyleSheet.create({
   button: {
     backgroundColor: '#cc0077',
-    padding: 10
+    padding: 10,
   },
   text: {
     color: '#fff',
     textAlign: 'center',
-    fontSize: 17
-  }
+    fontSize: 17,
+  },
 })

@@ -115,7 +115,7 @@ hr {
   table, tr, td {
     width: 100%;
     border-collapse: collapse;
-    padding: 0;
+    padding: 0 !important;
     margin: 0;
   }
 
@@ -170,11 +170,15 @@ hr {
 .page-inner .MainContent {
   position: relative;
   z-index: 1;
-  overflow-x: hidden;
   padding: 2em 1.4em 0;
 
   @media #{$screen-medium} {
-    padding: 60px 60px 30px;
+    padding: 0 20px 30px;
+  }
+
+  @media #{$screen-large} {
+    padding-right: 60px;
+    padding-left: 60px;
   }
 }
 
@@ -221,32 +225,106 @@ hr {
   font-weight: 700;
 
   @media #{$screen-medium} {
-    margin-right: 35px;
+    margin-right: 15px;
   }
 
   &-link {
     color: $color-primary;
   }
 
-  &-version {
-    display: inline-block;
-    padding: 0px 8px 1px;
-    background-color: $color-primary;
-    position: relative;
-    border-radius: 6px;
+  // Was used for 1.0, we can re-use for 2.0 or major announcements
+  // 
+  // &-version {
+  //   display: inline-block;
+  //   padding: 0px 8px 1px;
+  //   background-color: $color-primary;
+  //   position: relative;
+  //   border-radius: 6px;
+  //   color: #fff;
+  //   font-size: 24px;
+
+  //   &:hover {
+  //     background-color: darken($color-primary, 7%);
+  //   }
+  // }
+
+  // &-emoji {
+  //   font-size: 16px;
+  //   position: absolute;
+  //   bottom: 3px;
+  //   right: -1em;
+  // }
+}
+
+/**
+* TransloaditBar
+*/
+
+.TransloaditBar {
+  display: block;
+  padding: 5px 10px 8px;
+  background: $color-darkblue;
+  color: #fff;
+  font-size: 13px;
+  position: relative;
+  z-index: 11;
+  
+  @media #{$screen-medium} {
+    display: flex;
+    height: $size-transloaditBarHeight;
+    padding: 0 20px;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  @media #{$screen-large} {
+    padding: 0 60px;
+  }
+
+  &-link {
     color: #fff;
-    font-size: 24px;
+    font-weight: 700;
 
     &:hover {
-      background-color: darken($color-primary, 7%);
+      text-decoration: underline;
     }
   }
 
-  &-emoji {
-    font-size: 16px;
-    position: absolute;
-    bottom: 3px;
-    right: -1em;
+  &-logo {
+    margin-right: 10px;
+  }
+
+  &-logoImg {
+		display: block;
+	}
+
+  &-about {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &-info {
+    margin-top: 10px;
+    text-align: center;
+    display: none;
+
+    @media #{$screen-medium} {
+      display: block;
+      text-align: right;
+      margin-top: 0;
+      margin-left: 20px;
+    }
+  }
+
+  &-info-link {
+    color: #b3cbf2;
+    font-weight: 600;
+    
+    &:hover {
+      color: #b3cbf2;
+      text-decoration: underline;
+    }
   }
 }
 
@@ -255,29 +333,34 @@ hr {
 */
 
 .MainHeader {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 9;
   z-index: 2;
   padding-top: 15px;
   padding-bottom: 15px;
   background-color: $color-white;
   text-align: center;
-
+  position: relative;
+  border-bottom: 1px solid rgba($color-lightgray, 0.2);
+  
   @media #{$screen-medium} {
-    height: auto;
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: $size-headerHeight;
     display: flex;
     align-items: baseline;
-    padding: 14px 60px 19px;
+    padding: 14px 20px 19px;
     z-index: 2;
-    border-bottom: 1px solid rgba($color-lightgray, 0.2);
     text-align: left;
 
     // &.fix-header {
     //   box-shadow: 0 0 4px rgba(0,0,0,.25);
     // }
+  }
+
+  @media #{$screen-large} {
+    padding-right: 60px;
+    padding-left: 60px;
   }
 
   .page-index & {

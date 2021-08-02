@@ -5,8 +5,8 @@ title: "File Input"
 module: "@uppy/file-input"
 permalink: docs/file-input/
 alias: docs/fileinput/
-category: 'Sources'
-tagline: even more plain and simple, just a button
+category: "Sources"
+tagline: "even more plain and simple, just a button"
 ---
 
 `@uppy/file-input` is the most barebones UI for selecting files — it shows a single button that, when clicked, opens up the browser’s file selector.
@@ -103,7 +103,7 @@ If you don’t like the look/feel of the button rendered by `@uppy/file-input`, 
 Then add this JS to attach it to Uppy:
 
 ```js
-const uppy = Uppy(...)
+const uppy = new Uppy(...)
 const fileInput = document.querySelector('#my-file-input')
 
 fileInput.addEventListener('change', (event) => {
@@ -127,5 +127,16 @@ fileInput.addEventListener('change', (event) => {
       }
     }
   })
+})
+
+// it’s probably a good idea to clear the `<input>`
+// after the upload or when the file was removed
+// (see https://github.com/transloadit/uppy/issues/2640#issuecomment-731034781)
+uppy.on('file-removed', () => {
+  fileInput.value = null
+})
+
+uppy.on('complete', () => {
+  fileInput.value = null
 })
 ```

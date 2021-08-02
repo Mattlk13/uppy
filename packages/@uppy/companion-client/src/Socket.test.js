@@ -14,15 +14,19 @@ describe('Socket', () => {
       constructor (target) {
         webSocketConstructorSpy(target)
       }
+
       close (args) {
         webSocketCloseSpy(args)
       }
+
       send (json) {
         webSocketSendSpy(json)
       }
+
       triggerOpen () {
         this.onopen()
       }
+
       triggerClose () {
         this.onclose()
       }
@@ -36,7 +40,7 @@ describe('Socket', () => {
     expect(UppySocket.name).toEqual('UppySocket')
     expect(
       new UppySocket({
-        target: 'foo'
+        target: 'foo',
       }) instanceof UppySocket
     )
   })
@@ -54,7 +58,7 @@ describe('Socket', () => {
     uppySocket.send('bar', 'boo')
     expect(webSocketSendSpy.mock.calls.length).toEqual(1)
     expect(webSocketSendSpy.mock.calls[0]).toEqual([
-      JSON.stringify({ action: 'bar', payload: 'boo' })
+      JSON.stringify({ action: 'bar', payload: 'boo' }),
     ])
   })
 
@@ -62,7 +66,7 @@ describe('Socket', () => {
     const uppySocket = new UppySocket({ target: 'foo' })
 
     uppySocket.send('bar', 'boo')
-    expect(uppySocket.queued).toEqual([{ action: 'bar', payload: 'boo' }])
+    expect(uppySocket._queued).toEqual([{ action: 'bar', payload: 'boo' }])
     expect(webSocketSendSpy.mock.calls.length).toEqual(0)
   })
 
@@ -72,21 +76,21 @@ describe('Socket', () => {
 
     uppySocket.send('bar', 'boo')
     uppySocket.send('moo', 'baa')
-    expect(uppySocket.queued).toEqual([
+    expect(uppySocket._queued).toEqual([
       { action: 'bar', payload: 'boo' },
-      { action: 'moo', payload: 'baa' }
+      { action: 'moo', payload: 'baa' },
     ])
     expect(webSocketSendSpy.mock.calls.length).toEqual(0)
 
     webSocketInstance.triggerOpen()
 
-    expect(uppySocket.queued).toEqual([])
+    expect(uppySocket._queued).toEqual([])
     expect(webSocketSendSpy.mock.calls.length).toEqual(2)
     expect(webSocketSendSpy.mock.calls[0]).toEqual([
-      JSON.stringify({ action: 'bar', payload: 'boo' })
+      JSON.stringify({ action: 'bar', payload: 'boo' }),
     ])
     expect(webSocketSendSpy.mock.calls[1]).toEqual([
-      JSON.stringify({ action: 'moo', payload: 'baa' })
+      JSON.stringify({ action: 'moo', payload: 'baa' }),
     ])
   })
 
@@ -95,11 +99,11 @@ describe('Socket', () => {
     const webSocketInstance = uppySocket.socket
     webSocketInstance.triggerOpen()
     uppySocket.send('bar', 'boo')
-    expect(uppySocket.queued).toEqual([])
+    expect(uppySocket._queued).toEqual([])
 
     webSocketInstance.triggerClose()
     uppySocket.send('bar', 'boo')
-    expect(uppySocket.queued).toEqual([{ action: 'bar', payload: 'boo' }])
+    expect(uppySocket._queued).toEqual([{ action: 'bar', payload: 'boo' }])
   })
 
   it('should close the websocket when it is force closed', () => {
@@ -120,10 +124,10 @@ describe('Socket', () => {
 
     webSocketInstance.triggerOpen()
     webSocketInstance.onmessage({
-      data: JSON.stringify({ action: 'hi', payload: 'ho' })
+      data: JSON.stringify({ action: 'hi', payload: 'ho' }),
     })
     expect(emitterListenerMock.mock.calls).toEqual([
-      ['ho', undefined, undefined, undefined, undefined, undefined]
+      ['ho', undefined, undefined, undefined, undefined, undefined],
     ])
   })
 
@@ -146,8 +150,8 @@ describe('Socket', () => {
         undefined,
         undefined,
         undefined,
-        undefined
-      ]
+        undefined,
+      ],
     ])
   })
 
@@ -163,7 +167,7 @@ describe('Socket', () => {
 
     expect(emitterListenerMock.mock.calls.length).toEqual(1)
     expect(emitterListenerMock.mock.calls).toEqual([
-      ['ho', undefined, undefined, undefined, undefined, undefined]
+      ['ho', undefined, undefined, undefined, undefined, undefined],
     ])
   })
 })

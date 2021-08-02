@@ -1,4 +1,3 @@
-const request = require('request')
 const crypto = require('crypto')
 
 /**
@@ -41,42 +40,15 @@ exports.sanitizeHtml = (text) => {
   return text ? text.replace(/<\/?[^>]+(>|$)/g, '') : text
 }
 
-/**
- * Gets the size and content type of a url's content
- *
- * @param {string} url
- * @return {Promise}
- */
-exports.getURLMeta = (url) => {
-  return new Promise((resolve, reject) => {
-    const opts = {
-      uri: url,
-      method: 'HEAD',
-      followAllRedirects: true
-    }
-
-    request(opts, (err, response, body) => {
-      if (err) {
-        reject(err)
-      } else {
-        resolve({
-          type: response.headers['content-type'],
-          size: parseInt(response.headers['content-length'])
-        })
-      }
-    })
-  })
-}
-
 // all paths are assumed to be '/' prepended
 /**
  * Returns a url builder
  *
- * @param {object} options uppy options
+ * @param {object} options companion options
  */
 module.exports.getURLBuilder = (options) => {
   /**
-   * Builds uppy targeted url
+   * Builds companion targeted url
    *
    * @param {string} path the tail path of the url
    * @param {boolean} isExternal if the url is for the external world
@@ -116,10 +88,19 @@ function createSecret (secret) {
 /**
  * Create an initialization vector for AES256.
  *
- * @return {Buffer}
+ * @returns {Buffer}
  */
 function createIv () {
   return crypto.randomBytes(16)
+}
+
+function urlEncode (unencoded) {
+  return unencoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '~')
+}
+
+function urlDecode (encoded) {
+  encoded = encoded.replace(/-/g, '+').replace(/_/g, '/').replace(/~/g, '=')
+  return encoded
 }
 
 /**
@@ -127,15 +108,15 @@ function createIv () {
  *
  * @param {string} input
  * @param {string|Buffer} secret
- * @return {string} Ciphertext as a hex string, prefixed with 32 hex characters containing the iv.
+ * @returns {string} Ciphertext as a hex string, prefixed with 32 hex characters containing the iv.
  */
 module.exports.encrypt = (input, secret) => {
   const iv = createIv()
   const cipher = crypto.createCipheriv('aes256', createSecret(secret), iv)
-  let encrypted = iv.toString('hex')
-  encrypted += cipher.update(input, 'utf8', 'hex')
-  encrypted += cipher.final('hex')
-  return encrypted
+  let encrypted = cipher.update(input, 'utf8', 'base64')
+  encrypted += cipher.final('base64')
+  // add iv to encrypted string to use for decryption
+  return iv.toString('hex') + urlEncode(encrypted)
 }
 
 /**
@@ -143,7 +124,7 @@ module.exports.encrypt = (input, secret) => {
  *
  * @param {string} encrypted
  * @param {string|Buffer} secret
- * @return {string} Decrypted value.
+ * @returns {string} Decrypted value.
  */
 module.exports.decrypt = (encrypted, secret) => {
   // Need at least 32 chars for the iv
@@ -152,8 +133,9 @@ module.exports.decrypt = (encrypted, secret) => {
   }
 
   const iv = Buffer.from(encrypted.slice(0, 32), 'hex')
+  const encryptionWithoutIv = encrypted.slice(32)
   const decipher = crypto.createDecipheriv('aes256', createSecret(secret), iv)
-  let decrypted = decipher.update(encrypted.slice(32), 'hex', 'utf8')
+  let decrypted = decipher.update(urlDecode(encryptionWithoutIv), 'base64', 'utf8')
   decrypted += decipher.final('utf8')
   return decrypted
 }

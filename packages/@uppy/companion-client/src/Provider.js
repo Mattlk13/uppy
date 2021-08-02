@@ -1,5 +1,7 @@
 'use strict'
 
+const qsStringify = require('qs-stringify')
+const URL = require('url-parse')
 const RequestClient = require('./RequestClient')
 const tokenStorage = require('./tokenStorage')
 
@@ -12,20 +14,28 @@ module.exports = class Provider extends RequestClient {
     super(uppy, opts)
     this.provider = opts.provider
     this.id = this.provider
-    this.authProvider = opts.authProvider || this.provider
     this.name = this.opts.name || _getName(this.id)
     this.pluginId = this.opts.pluginId
     this.tokenKey = `companion-${this.pluginId}-auth-token`
+    this.companionKeysParams = this.opts.companionKeysParams
+    this.preAuthToken = null
   }
 
   headers () {
-    return new Promise((resolve, reject) => {
-      super.headers().then((headers) => {
-        this.getAuthToken().then((token) => {
-          resolve(Object.assign({}, headers, { 'uppy-auth-token': token }))
-        })
-      }).catch(reject)
-    })
+    return Promise.all([super.headers(), this.getAuthToken()])
+      .then(([headers, token]) => {
+        const authHeaders = {}
+        if (token) {
+          authHeaders['uppy-auth-token'] = token
+        }
+
+        if (this.companionKeysParams) {
+          authHeaders['uppy-credentials-params'] = btoa(
+            JSON.stringify({ params: this.companionKeysParams })
+          )
+        }
+        return { ...headers, ...authHeaders }
+      })
   }
 
   onReceiveResponse (response) {
@@ -46,34 +56,50 @@ module.exports = class Provider extends RequestClient {
     return this.uppy.getPlugin(this.pluginId).storage.getItem(this.tokenKey)
   }
 
-  authUrl () {
-    return `${this.hostname}/${this.id}/connect`
+  authUrl (queries = {}) {
+    if (this.preAuthToken) {
+      queries.uppyPreAuthToken = this.preAuthToken
+    }
+
+    let strigifiedQueries = qsStringify(queries)
+    strigifiedQueries = strigifiedQueries ? `?${strigifiedQueries}` : strigifiedQueries
+    return `${this.hostname}/${this.id}/connect${strigifiedQueries}`
   }
 
   fileUrl (id) {
     return `${this.hostname}/${this.id}/get/${id}`
   }
 
+  fetchPreAuthToken () {
+    if (!this.companionKeysParams) {
+      return Promise.resolve()
+    }
+
+    return this.post(`${this.id}/preauth/`, { params: this.companionKeysParams })
+      .then((res) => {
+        this.preAuthToken = res.token
+      }).catch((err) => {
+        this.uppy.log(`[CompanionClient] unable to fetch preAuthToken ${err}`, 'warning')
+      })
+  }
+
   list (directory) {
     return this.get(`${this.id}/list/${directory || ''}`)
   }
 
-  logout (redirect = location.href) {
-    return new Promise((resolve, reject) => {
-      this.get(`${this.id}/logout?redirect=${redirect}`)
-        .then((res) => {
-          this.uppy.getPlugin(this.pluginId).storage.removeItem(this.tokenKey)
-            .then(() => resolve(res))
-            .catch(reject)
-        }).catch(reject)
-    })
+  logout () {
+    return this.get(`${this.id}/logout`)
+      .then((response) => Promise.all([
+        response,
+        this.uppy.getPlugin(this.pluginId).storage.removeItem(this.tokenKey),
+      ])).then(([response]) => response)
   }
 
   static initPlugin (plugin, opts, defaultOpts) {
     plugin.type = 'acquirer'
     plugin.files = []
     if (defaultOpts) {
-      plugin.opts = Object.assign({}, defaultOpts, opts)
+      plugin.opts = { ...defaultOpts, ...opts }
     }
 
     if (opts.serverUrl || opts.serverPattern) {
@@ -92,7 +118,7 @@ module.exports = class Provider extends RequestClient {
       if (/^(?!https?:\/\/).*$/i.test(opts.companionUrl)) {
         plugin.opts.companionAllowedHosts = `https://${opts.companionUrl.replace(/^\/\//, '')}`
       } else {
-        plugin.opts.companionAllowedHosts = opts.companionUrl
+        plugin.opts.companionAllowedHosts = new URL(opts.companionUrl).origin
       }
     }
 

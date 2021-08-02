@@ -1,14 +1,13 @@
 const { h } = require('preact')
-const { iconPlus } = require('./icons')
 
 const uploadStates = {
-  'STATE_ERROR': 'error',
-  'STATE_WAITING': 'waiting',
-  'STATE_PREPROCESSING': 'preprocessing',
-  'STATE_UPLOADING': 'uploading',
-  'STATE_POSTPROCESSING': 'postprocessing',
-  'STATE_COMPLETE': 'complete',
-  'STATE_PAUSED': 'paused'
+  STATE_ERROR: 'error',
+  STATE_WAITING: 'waiting',
+  STATE_PREPROCESSING: 'preprocessing',
+  STATE_UPLOADING: 'uploading',
+  STATE_POSTPROCESSING: 'postprocessing',
+  STATE_COMPLETE: 'complete',
+  STATE_PAUSED: 'paused',
 }
 
 function getUploadingState (isAllErrored, isAllComplete, isAllPaused, files = {}) {
@@ -77,37 +76,39 @@ function PanelTopBar (props) {
   }
 
   return (
-    <div class="uppy-DashboardContent-bar">
-      { // always on the left
-        !props.isAllComplete
-          ? <button
-            class="uppy-DashboardContent-back"
-            type="button"
-            onclick={props.cancelAll}
-          >
-            {props.i18n('cancel')}
-          </button>
-          : <div />
-      }
+    <div className="uppy-DashboardContent-bar">
+      {!props.isAllComplete && !props.hideCancelButton ? (
+        <button
+          className="uppy-DashboardContent-back"
+          type="button"
+          onClick={props.cancelAll}
+        >
+          {props.i18n('cancel')}
+        </button>
+      ) : (
+        <div />
+      )}
 
-      <div class="uppy-DashboardContent-title" role="heading" aria-level="h1">
+      <div className="uppy-DashboardContent-title" role="heading" aria-level="1">
         <UploadStatus {...props} />
       </div>
 
-      { // always on the right
-        allowNewUpload
-          ? <button
-            class="uppy-DashboardContent-addMore"
-            type="button"
-            aria-label={props.i18n('addMoreFiles')}
-            title={props.i18n('addMoreFiles')}
-            onclick={() => props.toggleAddFilesPanel(true)}
-          >
-            {iconPlus()}
-            <span class="uppy-DashboardContent-addMoreCaption">{props.i18n('addMore')}</span>
-          </button>
-          : <div />
-      }
+      {allowNewUpload ? (
+        <button
+          className="uppy-DashboardContent-addMore"
+          type="button"
+          aria-label={props.i18n('addMoreFiles')}
+          title={props.i18n('addMoreFiles')}
+          onClick={() => props.toggleAddFilesPanel(true)}
+        >
+          <svg aria-hidden="true" focusable="false" className="uppy-c-icon" width="15" height="15" viewBox="0 0 15 15">
+            <path d="M8 6.5h6a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5H8v6a.5.5 0 0 1-.5.5H7a.5.5 0 0 1-.5-.5V8h-6a.5.5 0 0 1-.5-.5V7a.5.5 0 0 1 .5-.5h6v-6A.5.5 0 0 1 7 0h.5a.5.5 0 0 1 .5.5v6z" />
+          </svg>
+          <span className="uppy-DashboardContent-addMoreCaption">{props.i18n('addMore')}</span>
+        </button>
+      ) : (
+        <div />
+      )}
     </div>
   )
 }

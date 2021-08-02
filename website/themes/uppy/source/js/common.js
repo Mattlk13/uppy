@@ -19,6 +19,7 @@
     var header = document.querySelector('.js-MainHeader')
     var menu = document.querySelector('.js-Sidebar')
     var content = document.querySelector('.js-Content')
+    var transloaditBar = document.querySelector('.js-TransloaditBar')
 
     var animating = false
     var allLinks = []
@@ -26,6 +27,27 @@
     // // listen for scroll event to do positioning & highlights
     // window.addEventListener('scroll', updateSidebar)
     // window.addEventListener('resize', updateSidebar)
+
+    function makeSidebarTop () {
+      var headerHeight = header.offsetHeight
+      var transloaditBarHeight = 0
+
+      if (transloaditBar) {
+        transloaditBarHeight = transloaditBar.offsetHeight
+      }
+
+      if (window.matchMedia('(min-width: 1024px)').matches) {
+        var headerTopOffset = header.getBoundingClientRect().top
+        menu.style.top = `${headerHeight + headerTopOffset}px`
+      } else {
+        menu.style.paddingTop = `${headerHeight + transloaditBarHeight + 20}px`
+      }
+    }
+
+    makeSidebarTop()
+
+    window.addEventListener('scroll', makeSidebarTop)
+    window.addEventListener('resize', makeSidebarTop)
 
     function updateSidebar () {
       var top = (doc && doc.scrollTop) || body.scrollTop
@@ -60,10 +82,10 @@
       h.id = h.id
         .replace(/\(.*\)$/, '')
         .replace(/\$/, '')
-      link.innerHTML =
-        '<a class="section-link" data-scroll href="#' + h.id + '">' +
-          text +
-        '</a>'
+      link.innerHTML
+        = `<a class="section-link" data-scroll href="#${h.id}">${
+          text
+        }</a>`
       return link
     }
 
@@ -84,7 +106,7 @@
       if (small) {
         container.className = 'menu-sub'
       }
-      h3s.forEach(function (h) {
+      h3s.forEach((h) => {
         container.appendChild(makeLink(h))
       })
       return container
@@ -93,7 +115,7 @@
     function setActive (id) {
       var previousActive = menu.querySelector('.section-link.active')
       var currentActive = typeof id === 'string'
-        ? menu.querySelector('.section-link[href="#' + id + '"]')
+        ? menu.querySelector(`.section-link[href="#${id}"]`)
         : id
       if (currentActive !== previousActive) {
         if (previousActive) previousActive.classList.remove('active')
@@ -106,17 +128,17 @@
         return
       }
       var wrapper = document.createElement('a')
-      wrapper.href = '#' + link.id
+      wrapper.href = `#${link.id}`
       wrapper.setAttribute('data-scroll', '')
       link.parentNode.insertBefore(wrapper, link)
       wrapper.appendChild(link)
     }
 
-    menuButton.addEventListener('click', function () {
+    menuButton.addEventListener('click', () => {
       menu.classList.toggle('is-open')
     })
 
-    body.addEventListener('click', function (e) {
+    body.addEventListener('click', (e) => {
       if (e.target !== menuButton && !menu.contains(e.target)) {
         menu.classList.remove('is-open')
       }
@@ -147,7 +169,7 @@
         var h2s = content.querySelectorAll('h2')
 
         if (h2s.length) {
-          each.call(h2s, function (h) {
+          each.call(h2s, (h) => {
             sectionContainer.appendChild(makeLink(h))
             var h3s = collectH3s(h)
             allLinks.push(h)
@@ -158,19 +180,19 @@
           })
         } else {
           var h3s = content.querySelectorAll('h3')
-          each.call(h3s, function (h) {
+          each.call(h3s, (h) => {
             sectionContainer.appendChild(makeLink(h))
             allLinks.push(h)
           })
         }
 
-        sectionContainer.addEventListener('click', function (e) {
+        sectionContainer.addEventListener('click', (e) => {
           e.preventDefault()
           if (e.target.classList.contains('section-link')) {
             menu.classList.remove('open')
             setActive(e.target)
             animating = true
-            setTimeout(function () {
+            setTimeout(() => {
               animating = false
             }, 400)
           }
@@ -181,7 +203,7 @@
 
         // init smooth scroll
         window.smoothScroll.init({
-          speed: 400
+          speed: 400,
           // offset: window.innerWidth > 720
           //   ? 40
           //   : 58
@@ -201,7 +223,7 @@
 
   function IndexPage () {
     // Tabs
-    window.addEventListener('load', function () {
+    window.addEventListener('load', () => {
       var tabs = document.querySelectorAll('.Tabs-link')
 
       function myTabClicks (tabClickEvent) {
@@ -257,7 +279,7 @@
 
     function showTagline (taglineText) {
       tagline.classList.remove('is-visible')
-      setTimeout(function () {
+      setTimeout(() => {
         taglinePart.innerHTML = taglineText
         tagline.classList.add('is-visible')
       }, 800)
@@ -289,4 +311,4 @@
   //     // TODO when 1.x is out
   //   }
   // })
-})()
+}())

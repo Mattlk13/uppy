@@ -3,7 +3,7 @@ type: docs
 order: 5
 title: "Custom Stores"
 permalink: docs/stores/
-category: 'Docs'
+category: "Docs"
 ---
 
 > This section concerns storing the internal application state, if you work with React/Redux, for example. If none of this rings a bell, you can safely skip this section.
@@ -28,7 +28,7 @@ To use a store, pass an instance to the [`store` option](/docs/uppy#store-defaul
 ```js
 const defaultStore = require('@uppy/store-default')
 
-const uppy = Uppy({
+const uppy = new Uppy({
   store: defaultStore()
 })
 ```
@@ -62,7 +62,7 @@ const { createStore } = require('redux')
 const ReduxStore = require('@uppy/store-redux')
 
 const store = createStore(reducer)
-const uppy = Uppy({
+const uppy = new Uppy({
   store: ReduxStore({
     store: store // That's a lot of stores!
   })
@@ -91,7 +91,7 @@ ReduxStore({
 If you'd rather not store the Uppy state under the `state.uppy` key at all, use the `selector` option to the `ReduxStore` constructor to tell it where to find state instead:
 
 ```js
-const uppy = Uppy({
+const uppy = new Uppy({
   store: ReduxStore({
     store: store,
     id: 'avatarUpload',

@@ -4,20 +4,20 @@ const Webcam = require('@uppy/webcam')
 const Dashboard = require('@uppy/dashboard')
 const AwsS3 = require('@uppy/aws-s3')
 
-const uppy = Uppy({
+const uppy = new Uppy({
   debug: true,
-  autoProceed: false
+  autoProceed: false,
 })
 
 uppy.use(GoogleDrive, {
-  companionUrl: 'http://localhost:3020'
+  companionUrl: 'http://localhost:3020',
 })
 uppy.use(Webcam)
 uppy.use(Dashboard, {
   inline: true,
   target: 'body',
-  plugins: ['GoogleDrive', 'Webcam']
+  plugins: ['GoogleDrive', 'Webcam'],
 })
 uppy.use(AwsS3, {
-  companionUrl: 'http://localhost:3020'
+  companionUrl: 'http://localhost:3020',
 })

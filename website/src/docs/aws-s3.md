@@ -4,8 +4,8 @@ order: 2
 title: "AWS S3"
 module: "@uppy/aws-s3"
 permalink: docs/aws-s3/
-category: 'Destinations'
-tagline: uploader for AWS S3
+category: "Destinations"
+tagline: "uploader for AWS S3"
 ---
 
 The `@uppy/aws-s3` plugin can be used to upload files directly to an S3 bucket.
@@ -60,11 +60,18 @@ uppy.use(AwsS3, {
 })
 ```
 
-### `serverHeaders: {}`
+### `companionHeaders: {}`
 
 > Note: This only applies when using [Companion][companion docs] to sign S3 uploads.
 
 Custom headers that should be sent along to [Companion][companion docs] on every request.
+
+### `metaFields: []`
+
+Pass an array of field names to specify the metadata fields that should be stored in S3 as Object Metadata. This takes values from each file's `file.meta` property.
+
+- Set this to `['name']` to only send the name field.
+- Set this to an empty array `[]` (the default) to not send any fields.
 
 ### `getUploadParameters(file)`
 
@@ -84,6 +91,7 @@ The `fields` field is an object with form fields to send along with the upload r
 For presigned PUT uploads, this should be left empty.
 
 The `headers` field is an object with request headers to send along with the upload request.
+When using a presigned PUT upload, it's a good idea to provide `headers['content-type']`. That will ensure that the request uses the same content-type that was used to generate the signature. Without it, the browser may decide on a different content-type instead, causing S3 to reject the upload.
 
 ### `timeout: 30 * 1000`
 
@@ -195,6 +203,8 @@ The final configuration should look something like this:
 Even with these CORS rules in place, you browser might still encounter HTTP status 403 responses with `AccessDenied` in the response body when it tries to `POST` to your bucket. In this case, within the "Permissions" tab of the [S3 Management Console](https://console.aws.amazon.com/s3/home), choose "Public access settings".
 
 It will list general *Public access settings for this bucket*, which can override the rules imposed by your CORS settings. Click on *edit* to manage these settings. Under *Manage public access control lists (ACLs) for this bucket*, make sure that *Block new public ACLs and uploading public objects (Recommended)* is unchecked, and *Save* these settings.
+
+If you are using an IAM policy to allow access to the S3 bucket, the policy must have at least the `s3:PutObject` and `s3:PutObjectAcl` permissions scoped to the bucket in question.
 
 In-depth documentation about CORS rules is available on the [AWS documentation site](https://docs.aws.amazon.com/AmazonS3/latest/dev/cors.html).
 
@@ -322,7 +332,11 @@ uppy.use(AwsS3, {
       return {
         method: data.method,
         url: data.url,
-        fields: data.fields
+        fields: data.fields,
+        // Provide content type header required by S3
+        headers: {
+          'Content-Type': file.type
+        }
       }
     })
   }

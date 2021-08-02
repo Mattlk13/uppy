@@ -1,11 +1,12 @@
 const glob = require('glob')
-const Uppy = require('../packages/@uppy/core')
+const { ESLint } = require('eslint')
 const chalk = require('chalk')
 const path = require('path')
-const flat = require('flat')
 const stringifyObject = require('stringify-object')
 const fs = require('fs')
-const uppy = Uppy()
+const Uppy = require('../packages/@uppy/core')
+
+const uppy = new Uppy()
 let localePack = {}
 const plugins = {}
 const sources = {}
@@ -14,17 +15,20 @@ console.warn('\n--> Make sure to run `npm run build:lib` for this locale script 
 
 const mode = process.argv[2]
 if (mode === 'build') {
-  build()
+  build().catch((error) => {
+    console.error(error)
+    process.exit(1)
+  })
 } else if (mode === 'test') {
   test()
 } else {
-  throw new Error(`First argument must be either 'build' or 'test'`)
+  throw new Error("First argument must be either 'build' or 'test'")
 }
 
 function getSources (pluginName) {
   const dependencies = {
     // because 'provider-views' doesn't have its own locale, it uses Core's defaultLocale
-    'core': ['provider-views']
+    core: ['provider-views'],
   }
 
   const globPath = path.join(__dirname, '..', 'packages', '@uppy', pluginName, 'lib', '**', '*.js')
@@ -49,11 +53,15 @@ function buildPluginsList () {
   const packagesGlobPath = path.join(__dirname, '..', 'packages', '@uppy', '*', 'package.json')
   const files = glob.sync(packagesGlobPath)
 
-  console.log(`--> Checked plugins could be instantiated and have defaultLocale in them:\n`)
-  for (let file of files) {
+  console.log('--> Checked plugins could be instantiated and have defaultLocale in them:\n')
+  for (const file of files) {
     const dirName = path.dirname(file)
     const pluginName = path.basename(dirName)
-    if (pluginName === 'locales' || pluginName === 'react-native') {
+    if (pluginName === 'locales'
+        || pluginName === 'react-native'
+        || pluginName === 'vue'
+        || pluginName === 'svelte'
+        || pluginName === 'angular') {
       continue
     }
     const Plugin = require(dirName)
@@ -64,27 +72,27 @@ function buildPluginsList () {
     // @TODO Consider rewriting constructors so they don't make imperative calls that rely on
     // browser environment (OR: just keep this browser mocking, if it's only causing issues for this script, it doesn't matter)
     global.location = { protocol: 'https' }
-    global.navigator = {}
+    global.navigator = { userAgent: '' }
     global.localStorage = {
       key: () => { },
-      getItem: () => { }
+      getItem: () => { },
     }
     global.window = {
       indexedDB: {
-        open: () => { return {} }
-      }
+        open: () => { return {} },
+      },
     }
     global.document = {
       createElement: () => {
         return { style: {} }
-      }
+      },
     }
 
     try {
       if (pluginName === 'provider-views') {
         plugin = new Plugin(plugins['drag-drop'], {
           companionPattern: '',
-          companionUrl: 'https://companion.uppy.io'
+          companionUrl: 'https://companion.uppy.io',
         })
       } else if (pluginName === 'store-redux') {
         plugin = new Plugin({ store: { dispatch: () => { } } })
@@ -94,9 +102,9 @@ function buildPluginsList () {
           companionUrl: 'https://companion.uppy.io',
           params: {
             auth: {
-              key: 'x'
-            }
-          }
+              key: 'x',
+            },
+          },
         })
       }
     } catch (err) {
@@ -115,7 +123,7 @@ function buildPluginsList () {
     }
   }
 
-  console.log(``)
+  console.log('')
 
   return { plugins, sources }
 }
@@ -123,7 +131,7 @@ function buildPluginsList () {
 function addLocaleToPack (plugin, pluginName) {
   const localeStrings = plugin.defaultLocale.strings
 
-  for (let key in localeStrings) {
+  for (const key in localeStrings) {
     const valueInPlugin = JSON.stringify(localeStrings[key])
     const valueInPack = JSON.stringify(localePack[key])
 
@@ -138,9 +146,9 @@ function addLocaleToPack (plugin, pluginName) {
 }
 
 function checkForUnused (fileContents, pluginName, localePack) {
-  let buff = fileContents.join('\n')
-  for (let key in localePack) {
-    let regPat = new RegExp(`(i18n|i18nArray)\\([^\\)]*['\`"]${key}['\`"]`, 'g')
+  const buff = fileContents.join('\n')
+  for (const key in localePack) {
+    const regPat = new RegExp(`(i18n|i18nArray)\\([^\\)]*['\`"]${key}['\`"]`, 'g')
     if (!buff.match(regPat)) {
       console.error(`⚠ defaultLocale key: ${chalk.magenta(key)} not used in plugin: ${chalk.cyan(pluginName)}`)
     }
@@ -148,38 +156,71 @@ function checkForUnused (fileContents, pluginName, localePack) {
 }
 
 function sortObjectAlphabetically (obj, sortFunc) {
-  return Object.keys(obj).sort(sortFunc).reduce(function (result, key) {
+  return Object.keys(obj).sort(sortFunc).reduce((result, key) => {
     result[key] = obj[key]
     return result
   }, {})
 }
 
-function build () {
+function createTypeScriptLocale (plugin, pluginName) {
+  const allowedStringTypes = Object.keys(plugin.defaultLocale.strings)
+    .map(key => `  | '${key}'`)
+    .join('\n')
+
+  const pluginClassName = pluginName === 'core' ? 'Core' : plugin.id
+  const localePath = path.join(__dirname, '..', 'packages', '@uppy', pluginName, 'types', 'generatedLocale.d.ts')
+
+  const localeTypes
+    = `${'import Uppy = require(\'@uppy/core\')\n'
+    + '\n'
+    + `type ${pluginClassName}Locale = Uppy.Locale` + '<\n'}${
+      allowedStringTypes}\n`
+    + `>\n`
+    + `\n`
+    + `export = ${pluginClassName}Locale\n`
+
+  fs.writeFileSync(localePath, localeTypes)
+}
+
+async function build () {
   const { plugins, sources } = buildPluginsList()
 
-  for (let pluginName in plugins) {
+  for (const pluginName in plugins) {
     addLocaleToPack(plugins[pluginName], pluginName)
+  }
+
+  for (const pluginName in plugins) {
+    createTypeScriptLocale(plugins[pluginName], pluginName)
   }
 
   localePack = sortObjectAlphabetically(localePack)
 
-  for (let pluginName in sources) {
+  for (const pluginName in sources) {
     checkForUnused(sources[pluginName], pluginName, sortObjectAlphabetically(plugins[pluginName].defaultLocale.strings))
   }
 
   const prettyLocale = stringifyObject(localePack, {
     indent: '  ',
     singleQuotes: true,
-    inlineCharacterLimit: 12
+    inlineCharacterLimit: 12,
   })
 
   const localeTemplatePath = path.join(__dirname, '..', 'packages', '@uppy', 'locales', 'template.js')
   const template = fs.readFileSync(localeTemplatePath, 'utf-8')
 
-  const finalLocale = template.replace('en_US.strings = {}', 'en_US.strings = ' + prettyLocale)
+  const finalLocale = template.replace('en_US.strings = {}', `en_US.strings = ${prettyLocale}`)
 
   const localePackagePath = path.join(__dirname, '..', 'packages', '@uppy', 'locales', 'src', 'en_US.js')
-  fs.writeFileSync(localePackagePath, finalLocale, 'utf-8')
+
+  const linter = new ESLint({
+    fix: true,
+  })
+
+  const [lintResult] = await linter.lintText(finalLocale, {
+    filePath: localePackagePath,
+  })
+  fs.writeFileSync(localePackagePath, lintResult.output, 'utf8')
+
   console.log(`✅ Written '${localePackagePath}'`)
 }
 
@@ -191,8 +232,13 @@ function test () {
   const localePackagePath = path.join(__dirname, '..', 'packages', '@uppy', 'locales', 'src', '*.js')
   glob.sync(localePackagePath).forEach((localePath) => {
     const localeName = path.basename(localePath, '.js')
-    // Builds array with items like: 'uploadingXFiles.2'
-    followerValues[localeName] = flat(require(localePath).strings)
+    // we renamed the es_GL → gl_ES locale, and kept the old name
+    // for backwards-compat, see https://github.com/transloadit/uppy/pull/1929
+    if (localeName === 'es_GL') return
+
+    // Builds array with items like: 'uploadingXFiles'
+    // We do not check nested items because different languages may have different amounts of plural forms.
+    followerValues[localeName] = require(localePath).strings
     followerLocales[localeName] = Object.keys(followerValues[localeName])
   })
 
@@ -204,14 +250,19 @@ function test () {
   // Compare all follower Locales (RU, DE, etc) with our leader en_US
   const warnings = []
   const fatals = []
-  for (let followerName in followerLocales) {
-    let followerLocale = followerLocales[followerName]
-    let missing = leadingLocale.filter((key) => !followerLocale.includes(key))
-    let excess = followerLocale.filter((key) => !leadingLocale.includes(key))
+  for (const followerName in followerLocales) {
+    const followerLocale = followerLocales[followerName]
+    const missing = leadingLocale.filter((key) => !followerLocale.includes(key))
+    const excess = followerLocale.filter((key) => !leadingLocale.includes(key))
 
     missing.forEach((key) => {
       // Items missing are a non-fatal warning because we don't want CI to bum out over all languages
       // as soon as we add some English
+      let value = leadingValues[key]
+      if (typeof value === 'object') {
+        // For values with plural forms, just take the first one right now
+        value = value[Object.keys(value)[0]]
+      }
       warnings.push(`${chalk.cyan(followerName)} locale has missing string: '${chalk.red(key)}' that is present in ${chalk.cyan(leadingLocaleName)} with value: ${chalk.yellow(leadingValues[key])}`)
     })
     excess.forEach((key) => {
@@ -221,19 +272,19 @@ function test () {
   }
 
   if (warnings.length) {
-    console.error(`--> Locale warnings: `)
+    console.error('--> Locale warnings: ')
     console.error(warnings.join('\n'))
-    console.error(``)
+    console.error('')
   }
   if (fatals.length) {
-    console.error(`--> Locale fatal warnings: `)
+    console.error('--> Locale fatal warnings: ')
     console.error(fatals.join('\n'))
-    console.error(``)
+    console.error('')
     process.exit(1)
   }
 
   if (!warnings.length && !fatals.length) {
     console.log(`--> All locale strings have matching keys ${chalk.green(': )')}`)
-    console.log(``)
+    console.log('')
   }
 }

@@ -9,16 +9,16 @@ const isOnTravis = !!(process.env.TRAVIS && process.env.CI)
 const companionUrl = isOnTravis ? 'http://companion.test:3030' : 'http://localhost:3030'
 const endpoint = isOnTravis ? 'http://companion.test:1080' : 'http://localhost:1080'
 
-window.uppy = Uppy({
+window.uppy = new Uppy({
   id: 'uppyProvider',
-  debug: true
+  debug: true,
 })
   .use(Dashboard, {
     target: '#uppyDashboard',
-    inline: true
+    inline: true,
   })
   .use(Url, {
     target: Dashboard,
-    companionUrl: companionUrl
+    companionUrl,
   })
   .use(Tus, { endpoint: `${endpoint}/files/` })

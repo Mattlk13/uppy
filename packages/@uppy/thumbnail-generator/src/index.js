@@ -1,9 +1,10 @@
-const Exif = require('exif-js')
 const { Plugin } = require('@uppy/core')
+const Translator = require('@uppy/utils/lib/Translator')
 const dataURItoBlob = require('@uppy/utils/lib/dataURItoBlob')
 const isObjectURL = require('@uppy/utils/lib/isObjectURL')
 const isPreviewSupported = require('@uppy/utils/lib/isPreviewSupported')
-const ORIENTATIONS = require('./image-orientations')
+const MathLog2 = require('math-log2') // Polyfill for IE.
+const exifr = require('exifr/dist/mini.legacy.umd.js')
 
 /**
  * The Thumbnail Generator plugin
@@ -14,61 +15,89 @@ module.exports = class ThumbnailGenerator extends Plugin {
 
   constructor (uppy, opts) {
     super(uppy, opts)
-    this.type = 'thumbnail'
+    this.type = 'modifier'
     this.id = this.opts.id || 'ThumbnailGenerator'
     this.title = 'Thumbnail Generator'
     this.queue = []
     this.queueProcessing = false
     this.defaultThumbnailDimension = 200
+    this.thumbnailType = this.opts.thumbnailType || 'image/jpeg'
+
+    this.defaultLocale = {
+      strings: {
+        generatingThumbnails: 'Generating thumbnails...',
+      },
+    }
 
     const defaultOptions = {
       thumbnailWidth: null,
-      thumbnailHeight: null
+      thumbnailHeight: null,
+      waitForThumbnailsBeforeUpload: false,
+      lazy: false,
     }
 
-    this.opts = {
-      ...defaultOptions,
-      ...opts
+    this.opts = { ...defaultOptions, ...opts }
+
+    if (this.opts.lazy && this.opts.waitForThumbnailsBeforeUpload) {
+      throw new Error('ThumbnailGenerator: The `lazy` and `waitForThumbnailsBeforeUpload` options are mutually exclusive. Please ensure at most one of them is set to `true`.')
     }
 
-    this.onFileAdded = this.onFileAdded.bind(this)
-    this.onFileRemoved = this.onFileRemoved.bind(this)
-    this.onRestored = this.onRestored.bind(this)
+    this.i18nInit()
+  }
+
+  setOptions (newOpts) {
+    super.setOptions(newOpts)
+    this.i18nInit()
+  }
+
+  i18nInit () {
+    this.translator = new Translator([this.defaultLocale, this.uppy.locale, this.opts.locale])
+    this.i18n = this.translator.translate.bind(this.translator)
+    this.setPluginState() // so that UI re-renders and we see the updated locale
   }
 
   /**
    * Create a thumbnail for the given Uppy file object.
    *
    * @param {{data: Blob}} file
-   * @param {number} width
+   * @param {number} targetWidth
+   * @param {number} targetHeight
    * @returns {Promise}
    */
   createThumbnail (file, targetWidth, targetHeight) {
+    // bug in the compatibility data
+    // eslint-disable-next-line compat/compat
     const originalUrl = URL.createObjectURL(file.data)
 
     const onload = new Promise((resolve, reject) => {
       const image = new Image()
       image.src = originalUrl
       image.addEventListener('load', () => {
+        // bug in the compatibility data
+        // eslint-disable-next-line compat/compat
         URL.revokeObjectURL(originalUrl)
         resolve(image)
       })
       image.addEventListener('error', (event) => {
+        // bug in the compatibility data
+        // eslint-disable-next-line compat/compat
         URL.revokeObjectURL(originalUrl)
         reject(event.error || new Error('Could not create thumbnail'))
       })
     })
 
-    return Promise.all([onload, this.getOrientation(file)])
-      .then(values => {
-        const image = values[0]
-        const orientation = values[1]
-        const dimensions = this.getProportionalDimensions(image, targetWidth, targetHeight, orientation.rotation)
+    const orientationPromise = exifr.rotation(file.data).catch(_err => 1)
+
+    return Promise.all([onload, orientationPromise])
+      .then(([image, orientation]) => {
+        const dimensions = this.getProportionalDimensions(image, targetWidth, targetHeight, orientation.deg)
         const rotatedImage = this.rotateImage(image, orientation)
         const resizedImage = this.resizeImage(rotatedImage, dimensions.width, dimensions.height)
-        return this.canvasToBlob(resizedImage, 'image/png')
+        return this.canvasToBlob(resizedImage, this.thumbnailType, 80)
       })
       .then(blob => {
+        // bug in the compatibility data
+        // eslint-disable-next-line compat/compat
         return URL.createObjectURL(blob)
       })
   }
@@ -87,31 +116,22 @@ module.exports = class ThumbnailGenerator extends Plugin {
 
     if (width != null) {
       return {
-        width: width,
-        height: Math.round(width / aspect)
+        width,
+        height: Math.round(width / aspect),
       }
     }
 
     if (height != null) {
       return {
         width: Math.round(height * aspect),
-        height: height
+        height,
       }
     }
 
     return {
       width: this.defaultThumbnailDimension,
-      height: Math.round(this.defaultThumbnailDimension / aspect)
+      height: Math.round(this.defaultThumbnailDimension / aspect),
     }
-  }
-
-  getOrientation (file) {
-    return new Promise((resolve) => {
-      Exif.getData(file.data, function callback () {
-        const orientation = Exif.getTag(this, 'Orientation') || 1
-        resolve(ORIENTATIONS[orientation])
-      })
-    })
   }
 
   /**
@@ -158,9 +178,7 @@ module.exports = class ThumbnailGenerator extends Plugin {
 
     image = this.protect(image)
 
-    // Use the Polyfill for Math.log2() since IE doesn't support log2
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log2#Polyfill
-    var steps = Math.ceil(Math.log(image.width / targetWidth) * Math.LOG2E)
+    var steps = Math.ceil(MathLog2(image.width / targetWidth))
     if (steps < 1) {
       steps = 1
     }
@@ -186,7 +204,7 @@ module.exports = class ThumbnailGenerator extends Plugin {
     var w = image.width
     var h = image.height
 
-    if (translate.rotation === 90 || translate.rotation === 270) {
+    if (translate.deg === 90 || translate.deg === 270) {
       w = image.height
       h = image.width
     }
@@ -197,8 +215,10 @@ module.exports = class ThumbnailGenerator extends Plugin {
 
     var context = canvas.getContext('2d')
     context.translate(w / 2, h / 2)
-    context.rotate(translate.rotation * Math.PI / 180)
-    context.scale(translate.xScale, translate.yScale)
+    if (translate.canvas) {
+      context.rotate(translate.rad)
+      context.scale(translate.scaleX, translate.scaleY)
+    }
     context.drawImage(image, -image.width / 2, -image.height / 2, image.width, image.height)
 
     return canvas
@@ -256,15 +276,18 @@ module.exports = class ThumbnailGenerator extends Plugin {
   processQueue () {
     this.queueProcessing = true
     if (this.queue.length > 0) {
-      const current = this.queue.shift()
+      const current = this.uppy.getFile(this.queue.shift())
+      if (!current) {
+        this.uppy.log('[ThumbnailGenerator] file was removed before a thumbnail could be generated, but not removed from the queue. This is probably a bug', 'error')
+        return
+      }
       return this.requestThumbnail(current)
         .catch(err => {}) // eslint-disable-line handle-callback-err
         .then(() => this.processQueue())
-    } else {
-      this.queueProcessing = false
-      this.uppy.log('[ThumbnailGenerator] Emptied thumbnail queue')
-      this.uppy.emit('thumbnail:all-generated')
     }
+    this.queueProcessing = false
+    this.uppy.log('[ThumbnailGenerator] Emptied thumbnail queue')
+    this.uppy.emit('thumbnail:all-generated')
   }
 
   requestThumbnail (file) {
@@ -284,14 +307,32 @@ module.exports = class ThumbnailGenerator extends Plugin {
     return Promise.resolve()
   }
 
-  onFileAdded (file) {
-    if (!file.preview) {
-      this.addToQueue(file)
+  onFileAdded = (file) => {
+    if (
+      !file.preview
+      && file.data
+      && isPreviewSupported(file.type)
+      && !file.isRemote
+    ) {
+      this.addToQueue(file.id)
     }
   }
 
-  onFileRemoved (file) {
-    const index = this.queue.indexOf(file)
+  /**
+   * Cancel a lazy request for a thumbnail if the thumbnail has not yet been generated.
+   */
+  onCancelRequest = (file) => {
+    const index = this.queue.indexOf(file.id)
+    if (index !== -1) {
+      this.queue.splice(index, 1)
+    }
+  }
+
+  /**
+   * Clean up the thumbnail for a file. Cancel lazy requests and free the thumbnail URL.
+   */
+  onFileRemoved = (file) => {
+    const index = this.queue.indexOf(file.id)
     if (index !== -1) {
       this.queue.splice(index, 1)
     }
@@ -302,27 +343,72 @@ module.exports = class ThumbnailGenerator extends Plugin {
     }
   }
 
-  onRestored () {
-    const { files } = this.uppy.getState()
-    const fileIDs = Object.keys(files)
-    fileIDs.forEach((fileID) => {
-      const file = this.uppy.getFile(fileID)
-      if (!file.isRestored) return
+  onRestored = () => {
+    const restoredFiles = this.uppy.getFiles().filter(file => file.isRestored)
+    restoredFiles.forEach((file) => {
       // Only add blob URLs; they are likely invalid after being restored.
       if (!file.preview || isObjectURL(file.preview)) {
-        this.addToQueue(file)
+        this.addToQueue(file.id)
+      }
+    })
+  }
+
+  waitUntilAllProcessed = (fileIDs) => {
+    fileIDs.forEach((fileID) => {
+      const file = this.uppy.getFile(fileID)
+      this.uppy.emit('preprocess-progress', file, {
+        mode: 'indeterminate',
+        message: this.i18n('generatingThumbnails'),
+      })
+    })
+
+    const emitPreprocessCompleteForAll = () => {
+      fileIDs.forEach((fileID) => {
+        const file = this.uppy.getFile(fileID)
+        this.uppy.emit('preprocess-complete', file)
+      })
+    }
+
+    return new Promise((resolve, reject) => {
+      if (this.queueProcessing) {
+        this.uppy.once('thumbnail:all-generated', () => {
+          emitPreprocessCompleteForAll()
+          resolve()
+        })
+      } else {
+        emitPreprocessCompleteForAll()
+        resolve()
       }
     })
   }
 
   install () {
-    this.uppy.on('file-added', this.onFileAdded)
     this.uppy.on('file-removed', this.onFileRemoved)
-    this.uppy.on('restored', this.onRestored)
+    if (this.opts.lazy) {
+      this.uppy.on('thumbnail:request', this.onFileAdded)
+      this.uppy.on('thumbnail:cancel', this.onCancelRequest)
+    } else {
+      this.uppy.on('file-added', this.onFileAdded)
+      this.uppy.on('restored', this.onRestored)
+    }
+
+    if (this.opts.waitForThumbnailsBeforeUpload) {
+      this.uppy.addPreProcessor(this.waitUntilAllProcessed)
+    }
   }
+
   uninstall () {
-    this.uppy.off('file-added', this.onFileAdded)
     this.uppy.off('file-removed', this.onFileRemoved)
-    this.uppy.off('restored', this.onRestored)
+    if (this.opts.lazy) {
+      this.uppy.off('thumbnail:request', this.onFileAdded)
+      this.uppy.off('thumbnail:cancel', this.onCancelRequest)
+    } else {
+      this.uppy.off('file-added', this.onFileAdded)
+      this.uppy.off('restored', this.onRestored)
+    }
+
+    if (this.opts.waitForThumbnailsBeforeUpload) {
+      this.uppy.removePreProcessor(this.waitUntilAllProcessed)
+    }
   }
 }

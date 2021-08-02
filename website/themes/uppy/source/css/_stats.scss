@@ -10,10 +10,15 @@
 }
 
 .Stats-bundleSizes {
+  margin-top: 1em;
   margin-bottom: 1em;
   width: 100%;
 
   th { text-align: left; }
+}
+
+.Stats-size {
+  white-space: nowrap;
 }
 
 a.Stats-package {

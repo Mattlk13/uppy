@@ -5,7 +5,8 @@ import {
   TouchableOpacity,
   Text,
   TextInput,
-  View } from 'react-native'
+  View,
+} from 'react-native'
 import Url from '@uppy/url'
 
 export default class UppyRNUrl extends React.Component {
@@ -13,7 +14,7 @@ export default class UppyRNUrl extends React.Component {
     super()
 
     this.state = {
-      url: null
+      url: null,
     }
 
     this.onPressImport = this.onPressImport.bind(this)
@@ -21,11 +22,11 @@ export default class UppyRNUrl extends React.Component {
 
   componentDidMount () {
     const uppy = this.props.uppy
-    const options = Object.assign(
-      { id: 'uppyRN:Url' },
-      this.props,
-      { }
-    )
+    const options = {
+      id: 'uppyRN:Url',
+      ...this.props,
+
+    }
     delete options.uppy
 
     uppy.use(Url, options)
@@ -52,18 +53,20 @@ export default class UppyRNUrl extends React.Component {
           style={styles.input}
           autoFocus
           onChangeText={(text) => this.setState({
-            url: text
+            url: text,
           })}
           placeholder="Enter URL to import a file"
         />
         <TouchableOpacity
           style={styles.buttonImport}
-          onPress={this.onPressImport}>
+          onPress={this.onPressImport}
+        >
           <Text style={styles.buttonImportText}>Import</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.buttonCancel}
-          onPress={ev => this.props.onDone()}>
+          onPress={ev => this.props.onDone()}
+        >
           <Text style={styles.buttonCancelText}>Cancel</Text>
         </TouchableOpacity>
       </View>
@@ -75,7 +78,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   input: {
     width: '90%',
@@ -84,7 +87,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: 5,
     borderRadius: 4,
-    marginBottom: 15
+    marginBottom: 15,
   },
   buttonImport: {
     alignItems: 'center',
@@ -92,18 +95,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     paddingVertical: 8,
     borderRadius: 5,
-    marginBottom: 10
+    marginBottom: 10,
   },
   buttonCancel: {
     alignItems: 'center',
     paddingHorizontal: 15,
     paddingVertical: 8,
-    borderRadius: 5
+    borderRadius: 5,
   },
   buttonImportText: {
-    color: '#fff'
+    color: '#fff',
   },
   buttonCancelText: {
-    color: '#0077cc'
-  }
+    color: '#0077cc',
+  },
 })

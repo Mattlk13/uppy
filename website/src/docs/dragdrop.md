@@ -5,8 +5,8 @@ title: "Drag & Drop"
 module: "@uppy/drag-drop"
 permalink: docs/drag-drop/
 alias: docs/dragdrop/
-category: 'Sources'
-tagline: plain and simple drag-and-drop area
+category: "Sources"
+tagline: "plain and simple drag-and-drop area"
 ---
 
 The `@uppy/drag-drop` plugin renders a simple drag and drop area for file selection. it can be useful when you only want the local device as a file source, don’t need file previews and a UI for metadata editing, and the [Dashboard](/docs/dashboard/) feels like overkill.
@@ -88,6 +88,18 @@ Optionally, specify a string of text that explains something about the upload fo
 
 Localize text that is shown to the user.
 
+### `onDragOver(event)`
+
+Callback for the [`ondragover`][ondragover] event handler.
+
+### `onDragLeave(event)`
+
+Callback for the [`ondragleave`][ondragleave] event handler.
+
+### `onDrop(event)`
+
+Callback for the [`ondrop`][ondrop] event handler.
+
 The default English strings are:
 
 ```js
@@ -99,3 +111,9 @@ strings: {
   browse: 'browse'
 }
 ```
+
+<!-- definitions -->
+
+[ondragover]: https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/ondragover
+[ondragleave]: https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/ondragleave
+[ondrop]: https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/ondrop

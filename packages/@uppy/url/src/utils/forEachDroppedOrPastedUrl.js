@@ -52,7 +52,7 @@ const toArray = require('@uppy/utils/lib/toArray')
 /**
  * Finds all links dropped/pasted from one browser window to another.
  *
- * @param {Object} dataTransfer - DataTransfer instance, e.g. e.clipboardData, or e.dataTransfer
+ * @param {object} dataTransfer - DataTransfer instance, e.g. e.clipboardData, or e.dataTransfer
  * @param {string} isDropOrPaste - either 'drop' or 'paste'
  * @param {Function} callback - (urlString) => {}
  */
@@ -66,19 +66,17 @@ module.exports = function forEachDroppedOrPastedUrl (dataTransfer, isDropOrPaste
       const atLeastOneFileIsDragged = items.some((item) => item.kind === 'file')
       if (atLeastOneFileIsDragged) {
         return
-      } else {
-        urlItems = items.filter((item) =>
-          item.kind === 'string' &&
-          item.type === 'text/plain'
-        )
       }
+      urlItems = items.filter((item) =>
+        item.kind === 'string'
+          && item.type === 'text/plain')
+
       break
     }
     case 'drop': {
       urlItems = items.filter((item) =>
-        item.kind === 'string' &&
-        item.type === 'text/uri-list'
-      )
+        item.kind === 'string'
+        && item.type === 'text/uri-list')
       break
     }
     default: {
@@ -88,7 +86,6 @@ module.exports = function forEachDroppedOrPastedUrl (dataTransfer, isDropOrPaste
 
   urlItems.forEach((item) => {
     item.getAsString((urlString) =>
-      callback(urlString)
-    )
+      callback(urlString))
   })
 }

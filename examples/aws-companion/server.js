@@ -8,33 +8,34 @@ const DATA_DIR = path.join(__dirname, 'tmp')
 
 app.use(require('cors')({
   origin: true,
-  credentials: true
+  credentials: true,
 }))
 app.use(require('cookie-parser')())
 app.use(require('body-parser').json())
 app.use(require('express-session')({
-  secret: 'hello planet'
+  secret: 'hello planet',
 }))
 
 const options = {
   providerOptions: {
-    google: {
-      key: process.env.COMPANION_GOOGLE_KEY || process.env.UPPYSERVER_GOOGLE_KEY,
-      secret: process.env.COMPANION_GOOGLE_SECRET || process.env.UPPYSERVER_GOOGLE_SECRET
+    drive: {
+      key: process.env.COMPANION_GOOGLE_KEY,
+      secret: process.env.COMPANION_GOOGLE_SECRET,
     },
     s3: {
       getKey: (req, filename) =>
         `whatever/${Math.random().toString(32).slice(2)}/${filename}`,
-      key: process.env.COMPANION_AWS_KEY || process.env.UPPYSERVER_AWS_KEY,
-      secret: process.env.COMPANION_AWS_SECRET || process.env.UPPYSERVER_AWS_SECRET,
-      bucket: process.env.COMPANION_AWS_BUCKET || process.env.UPPYSERVER_AWS_BUCKET,
-      region: process.env.COMPANION_AWS_REGION || process.env.UPPYSERVER_AWS_REGION
-    }
+      key: process.env.COMPANION_AWS_KEY,
+      secret: process.env.COMPANION_AWS_SECRET,
+      bucket: process.env.COMPANION_AWS_BUCKET,
+      region: process.env.COMPANION_AWS_REGION,
+      endpoint: process.env.COMPANION_AWS_ENDPOINT,
+    },
   },
   server: { host: 'localhost:3020' },
   filePath: DATA_DIR,
   secret: 'blah blah',
-  debug: true
+  debug: true,
 }
 
 // Create the data directory here for the sake of the example.
@@ -43,7 +44,7 @@ try {
 } catch (err) {
   fs.mkdirSync(DATA_DIR)
 }
-process.on('exit', function () {
+process.on('exit', () => {
   rimraf.sync(DATA_DIR)
 })
 

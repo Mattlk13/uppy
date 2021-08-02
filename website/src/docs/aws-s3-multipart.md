@@ -4,8 +4,8 @@ order: 3
 title: "AWS S3 Multipart"
 module: "@uppy/aws-s3-multipart"
 permalink: docs/aws-s3-multipart/
-category: 'Destinations'
-tagline: uploader for AWS S3 using its resumable Multipart protocol
+category: "Destinations"
+tagline: "uploader for AWS S3 using its resumable Multipart protocol"
 ---
 
 The `@uppy/aws-s3-multipart` plugin can be used to upload files directly to an S3 bucket using S3's Multipart upload strategy. With this strategy, files are chopped up in parts of 5MB+ each, so they can be uploaded concurrently. It is also very reliable: if a single part fails to upload, only that 5MB chunk has to be retried.
@@ -38,15 +38,41 @@ const AwsS3Multipart = Uppy.AwsS3Multipart
 
 The `@uppy/aws-s3-multipart` plugin has the following configurable options:
 
-### limit: 0
+### `limit: 0`
 
 The maximum amount of chunks to upload simultaneously. Set to `0` to disable limiting.
 
-### companionUrl: null
+### `retryDelays: [0, 1000, 3000, 5000]`
 
-The Companion URL to use for proxying calls to the S3 Multipart API.
+When uploading a chunk fails, automatically try again after the millisecond intervals specified in this array. By default, we first retry instantly; if that fails, we retry after 1 second; if that fails, we retry after 3 seconds, etc.
 
-### createMultipartUpload(file)
+Set to `null` to disable automatic retries, and fail instantly if any chunk fails to upload.
+
+### `companionUrl: null`
+
+URL of the [Companion](/docs/companion) instance to use for proxying calls to the S3 Multipart API.
+
+This will be used by the default implementations of the upload-related functions below. If you provide your own implementations, a `companionUrl` is unnecessary.
+
+### `companionHeaders: {}`
+
+Custom headers that should be sent along to [Companion](/docs/companion) on every request.
+
+This will be used by the default implementations of the upload-related functions below. If you provide your own implementations, these headers are not sent automatically.
+
+### `companionCookiesRule: 'same-origin'`
+
+This option correlates to the [RequestCredentials value](https://developer.mozilla.org/en-US/docs/Web/API/Request/credentials), which tells the plugin whether or not to send cookies to [Companion](/docs/companion).
+
+### `getChunkSize(file)`
+
+A function that returns the minimum chunk size to use when uploading the given file.
+
+The S3 Multipart plugin uploads files in chunks. Each chunk requires a signing request ([`prepareUploadPart()`](#prepareUploadPart-file-partData)). To reduce the amount of requests for large files, you can choose a larger chunk size, at the cost of having to re-upload more data if one chunk fails to upload.
+
+S3 requires a minimum chunk size of 5MB, and supports at most 10,000 chunks per multipart upload. If `getChunkSize()` returns a size that's too small, Uppy will increase it to S3's minimum requirements.
+
+### `createMultipartUpload(file)`
 
 A function that calls the S3 Multipart API to create a new upload. `file` is the file object from Uppy's state. The most relevant keys are `file.name` and `file.type`.
 
@@ -57,7 +83,7 @@ Return a Promise for an object with keys:
 
 The default implementation calls out to Companion's S3 signing endpoints.
 
-### listParts(file, { uploadId, key })
+### `listParts(file, { uploadId, key })`
 
 A function that calls the S3 Multipart API to list the parts of a file that have already been uploaded. Receives the `file` object from Uppy's state, and an object with keys:
 
@@ -72,7 +98,7 @@ Return a Promise for an array of S3 Part objects, as returned by the S3 Multipar
 
 The default implementation calls out to Companion's S3 signing endpoints.
 
-### prepareUploadPart(file, partData)
+### `prepareUploadPart(file, partData)`
 
 A function that generates a signed URL to upload a single part. Receives the `file` object from Uppy's state. The `partData` argument is an object with keys:
 
@@ -95,8 +121,9 @@ Return a Promise for an object with keys:
      Expires: 5 * 60,
    }, (err, url) => { /* there's the url! */ })
    ```
+ - `headers` - **(Optional)** Custom headers that should be sent to the S3 presigned URL.
 
-### abortMultipartUpload(file, { uploadId, key })
+### `abortMultipartUpload(file, { uploadId, key })`
 
 A function that calls the S3 Multipart API to abort a Multipart upload, and delete all parts that have been uploaded so far. Receives the `file` object from Uppy's state, and an object with keys:
 
@@ -107,7 +134,7 @@ This is typically called when the user cancels an upload. Cancellation cannot fa
 
 The default implementation calls out to Companion's S3 signing endpoints.
 
-### completeMultipartUpload(file, { uploadId, key, parts })
+### `completeMultipartUpload(file, { uploadId, key, parts })`
 
 A function that calls the S3 Multipart API to complete a Multipart upload, combining all parts into a single object in the S3 bucket. Receives the `file` object from Uppy's state, and an object with keys:
 

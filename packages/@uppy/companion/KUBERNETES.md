@@ -1,10 +1,12 @@
 ### Run companion on kuberenetes
 
 You can use our docker container to run companion on kubernetes with the following configuration.
+
 ```bash
 kubectl create ns uppy
 ```
-We will need a Redis container that we can get through [helm](https://github.com/kubernetes/helm)
+
+We will need a Redis container that we can get through [helm](https://github.com/kubernetes/helm):
 
 ```bash
  helm install --name redis \
@@ -13,7 +15,9 @@ We will need a Redis container that we can get through [helm](https://github.com
     stable/redis
 ```
 
-> companion-env.yml
+
+#### `companion-env.yml`
+
 ```yaml
 apiVersion: v1
 data:
@@ -26,6 +30,8 @@ data:
   COMPANION_SECRET: "shh!Issa Secret!"
   COMPANION_DROPBOX_KEY: "YOUR DROPBOX KEY"
   COMPANION_DROPBOX_SECRET: "YOUR DROPBOX SECRET"
+  COMPANION_BOX_KEY: "YOUR BOX KEY"
+  COMPANION_BOX_SECRET: "YOUR BOX SECRET"
   COMPANION_GOOGLE_KEY: "YOUR GOOGLE KEY"
   COMPANION_GOOGLE_SECRET: "YOUR GOOGLE SECRET"
   COMPANION_INSTAGRAM_KEY: "YOUR INSTAGRAM KEY"
@@ -35,7 +41,7 @@ data:
   COMPANION_AWS_BUCKET: "YOUR AWS S3 BUCKET"
   COMPANION_AWS_REGION: "AWS REGION"
   COMPANION_OAUTH_DOMAIN: "sub.domain.com"
-  COMPANION_UPLOAD_URLS: "http://master.tus.io/files/,https://master.tus.io/files/"
+  COMPANION_UPLOAD_URLS: "http://tusd.tusdemo.net/files/,https://tusd.tusdemo.net/files/"
 kind: Secret
 metadata:
   name: companion-env
@@ -43,7 +49,8 @@ metadata:
 type: Opaque
 ```
 
-> companion-deployment.yml
+#### `companion-deployment.yml`
+
 ```yaml
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -66,7 +73,7 @@ spec:
       containers:
       - image: docker.io/transloadit/companion:latest
         imagePullPolicy: ifNotPresent
-        name: companion        
+        name: companion
         resources:
           limits:
             memory: 150Mi
@@ -85,9 +92,11 @@ spec:
         emptyDir: {}
 ```
 
-`kubectl apply -f companion-deployment.yml`
+```bash
+kubectl apply -f companion-deployment.yml
+```
 
-> companion-service.yml
+#### `companion-service.yml`
 
 ```yaml
 apiVersion: v1
@@ -104,12 +113,14 @@ spec:
     app: companion
 ```
 
-`kubectl apply -f companion-service.yml`
+```bash
+kubectl apply -f companion-service.yml
+```
 
 ## Logging
 
-You can check the production logs for the production pod using: 
+You can check the production logs for the production pod using:
 
 ```bash
-kubectl logs my-pod-name 
+kubectl logs my-pod-name
 ```

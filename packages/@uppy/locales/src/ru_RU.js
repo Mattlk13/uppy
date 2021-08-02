@@ -5,16 +5,16 @@ ru_RU.strings = {
   addingMoreFiles: 'Добавление дополнительных файлов',
   allowAccessDescription: 'Чтобы сделать фото или видео, пожалуйста, разрешите доступ к камере для этого сайта',
   allowAccessTitle: 'Пожалуйста, разрешите доступ к вашей камере',
-  authenticateWithTitle: 'Пожалуйста, авторизуйтесь в %{pluginName} чтобы выбрать файлы',
+  authenticateWithTitle: 'Пожалуйста, авторизуйтесь в %{pluginName}, чтобы выбрать файлы',
   authenticateWith: 'Подключиться к %{pluginName}',
   back: 'Назад',
   addMore: 'Добавить еще',
   browse: 'выберите',
+  browseFiles: 'выберите',
   cancel: 'Отменить',
   cancelUpload: 'Отменить загрузку',
   chooseFiles: 'Выбрать файлы',
   closeModal: 'Закрыть окно',
-  companionAuthError: 'Требуется авторизация',
   companionError: 'Не удалось подключиться к Companion',
   // «Готово» вместо «загрузка завершена», потому что кроме загрузки бывает encoding — транскодирование файлов
   complete: 'Готово',
@@ -24,16 +24,19 @@ ru_RU.strings = {
   copyLinkToClipboardFallback: 'Скопируйте ссылку',
   copyLinkToClipboardSuccess: 'Ссылка скопирована в буфер обмена',
   creatingAssembly: 'Подготовка загрузки...',
-  creatingAssemblyFailed: 'Transloadit: Не удалось создать Assembly',
+  creatingAssemblyFailed: 'Transloadit: не удалось создать Assembly',
   dashboardTitle: 'Загрузчик файлов',
-  dashboardWindowTitle: 'Окно загрузчика файлов (Нажмите escape, чтобы закрыть)',
+  dashboardWindowTitle: 'Окно загрузчика файлов (нажмите escape, чтобы закрыть)',
   dataUploadedOfTotal: '%{complete} из %{total}',
   done: 'Готово',
   dropHereOr: 'Перетащите файлы или %{browse}',
   dropHint: 'Перетащите файлы сюда',
-  dropPaste: 'Перетащите файлы, вставьте или %{browse}',
-  dropPasteImport: 'Перетащите файлы, вставьте, %{browse} или импортируйте',
-  edit: 'Редактировать',
+  dropPasteBoth: 'Перетащите файлы, вставьте или %{browse}',
+  dropPasteFiles: 'Перетащите файлы, вставьте или %{browse}',
+  dropPasteFolders: 'Перетащите файлы, вставьте или %{browse}',
+  dropPasteImportBoth: 'Перетащите файлы, вставьте, %{browse} или импортируйте из:',
+  dropPasteImportFiles: 'Перетащите файлы, вставьте, %{browse} или импортируйте из:',
+  dropPasteImportFolders: 'Перетащите файлы, вставьте, %{browse} или импортируйте из:',
   editFile: 'Редактировать файл',
   editing: 'Редактируется %{file}',
   emptyFolderAdded: 'Файлы не были добавлены — папка пуста',
@@ -47,18 +50,17 @@ ru_RU.strings = {
   filesUploadedOfTotal: {
     '0': '%{complete} из %{smart_count} файла загружено',
     '1': '%{complete} из %{smart_count} файлов загружено',
-    '2': '%{complete} из %{smart_count} файлов загружено'
+    '2': '%{complete} из %{smart_count} файлов загружено',
   },
   filter: 'Фильтр',
   finishEditingFile: 'Закончить редактирование файла',
   folderAdded: {
     '0': 'Добавлен %{smart_count} файл из %{folder}',
     '1': 'Добавлено %{smart_count} файла из %{folder}',
-    '2': 'Добавлено %{smart_count} файлов из %{folder}'
+    '2': 'Добавлено %{smart_count} файлов из %{folder}',
   },
   import: 'Импортировать',
   importFrom: 'Импортировать из %{name}',
-  link: 'Ссылка',
   loading: 'Загрузка...',
   logOut: 'Выйти',
   myDevice: 'Мое устройство',
@@ -67,11 +69,10 @@ ru_RU.strings = {
   pause: 'Поставить на паузу',
   pauseUpload: 'Поставить загрузку на паузу',
   paused: 'На паузе',
-  preparingUpload: 'Подготовка к загрузке...',
   processingXFiles: {
     '0': 'Обрабатывается %{smart_count} файл',
     '1': 'Обрабатываются %{smart_count} файла',
-    '2': 'Обрабатываются %{smart_count} файлов'
+    '2': 'Обрабатываются %{smart_count} файлов',
   },
   poweredBy: 'Работает на',
   removeFile: 'Удалить файл',
@@ -84,7 +85,7 @@ ru_RU.strings = {
   selectX: {
     '0': 'Выбрать %{smart_count}',
     '1': 'Выбрать %{smart_count}',
-    '2': 'Выбрать %{smart_count}'
+    '2': 'Выбрать %{smart_count}',
   },
   smile: 'Улыбнитесь!',
   startRecording: 'Начать запись видео',
@@ -98,46 +99,46 @@ ru_RU.strings = {
   uploadXFiles: {
     '0': 'Загрузить %{smart_count} файл',
     '1': 'Загрузить %{smart_count} файла',
-    '2': 'Загрузить %{smart_count} файлов'
+    '2': 'Загрузить %{smart_count} файлов',
   },
   uploadXNewFiles: {
     '0': 'Загрузить +%{smart_count} файл',
     '1': 'Загрузить +%{smart_count} файла',
-    '2': 'Загрузить +%{smart_count} файлов'
+    '2': 'Загрузить +%{smart_count} файлов',
   },
   uploading: 'Загрузка',
   uploadingXFiles: {
     '0': 'Загружается %{smart_count} файл',
     '1': 'Загружается %{smart_count} файла',
-    '2': 'Загружается %{smart_count} файлов'
+    '2': 'Загружается %{smart_count} файлов',
   },
   xFilesSelected: {
     '0': '%{smart_count} файл выбран',
     '1': '%{smart_count} файла выбрано',
-    '2': '%{smart_count} файлов выбрано'
+    '2': '%{smart_count} файлов выбрано',
   },
   xMoreFilesAdded: {
     '0': '%{smart_count} дополнительный файл добавлен',
     '1': '%{smart_count} дополнительных файла добавлено',
-    '2': '%{smart_count} дополнительных файлов добавлено'
+    '2': '%{smart_count} дополнительных файлов добавлено',
   },
   xTimeLeft: 'осталось %{time}',
   youCanOnlyUploadFileTypes: 'Вы можете загрузить только: %{types}',
   youCanOnlyUploadX: {
     '0': 'Вы можете загрузить только %{smart_count} файл',
     '1': 'Вы можете загрузить только %{smart_count} файла',
-    '2': 'Вы можете загрузить только %{smart_count} файлов'
+    '2': 'Вы можете загрузить только %{smart_count} файлов',
   },
   youHaveToAtLeastSelectX: {
     '0': 'Вы должны выбрать хотя бы %{smart_count} файл',
     '1': 'Вы должны выбрать хотя бы %{smart_count} файла',
-    '2': 'Вы должны выбрать хотя бы %{smart_count} файлов'
+    '2': 'Вы должны выбрать хотя бы %{smart_count} файлов',
   },
   selectAllFilesFromFolderNamed: 'Выбрать все файлы из папки %{name}',
   unselectAllFilesFromFolderNamed: 'Отменить выбор всех файлов из папки %{name}',
   selectFileNamed: 'Выбрать файл %{name}',
   unselectFileNamed: 'Отменить выбор файла %{name}',
-  openFolderNamed: 'Открыть папку %{name}'
+  openFolderNamed: 'Открыть папку %{name}',
 }
 
 ru_RU.pluralize = function (n) {

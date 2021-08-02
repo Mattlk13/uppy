@@ -5,7 +5,8 @@ export default function SelectFiles (props) {
   return (
     <TouchableHighlight
       onPress={props.showFilePicker}
-      style={styles.button}>
+      style={styles.button}
+    >
       <Text style={styles.text}>Select files</Text>
     </TouchableHighlight>
   )
@@ -14,11 +15,11 @@ export default function SelectFiles (props) {
 const styles = StyleSheet.create({
   button: {
     backgroundColor: '#cc0077',
-    padding: 15
+    padding: 15,
   },
   text: {
     color: '#fff',
     textAlign: 'center',
-    fontSize: 17
-  }
+    fontSize: 17,
+  },
 })

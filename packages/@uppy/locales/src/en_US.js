@@ -1,21 +1,31 @@
 const en_US = {}
 
 en_US.strings = {
+  addBulkFilesFailed: {
+    '0': 'Failed to add %{smart_count} file due to an internal error',
+    '1': 'Failed to add %{smart_count} files due to internal errors',
+  },
   addMore: 'Add more',
   addMoreFiles: 'Add more files',
   addingMoreFiles: 'Adding more files',
   allowAccessDescription: 'In order to take pictures or record video with your camera, please allow camera access for this site.',
   allowAccessTitle: 'Please allow access to your camera',
+  aspectRatioLandscape: 'Crop landscape (16:9)',
+  aspectRatioPortrait: 'Crop portrait (9:16)',
+  aspectRatioSquare: 'Crop square',
   authenticateWith: 'Connect to %{pluginName}',
   authenticateWithTitle: 'Please authenticate with %{pluginName} to select files',
   back: 'Back',
+  backToSearch: 'Back to Search',
   browse: 'browse',
+  browseFiles: 'browse files',
+  browseFolders: 'browse folders',
   cancel: 'Cancel',
   cancelUpload: 'Cancel upload',
   chooseFiles: 'Choose files',
   closeModal: 'Close Modal',
-  companionAuthError: 'Authorization required',
   companionError: 'Connection with Companion failed',
+  companionUnauthorizeHint: 'To unauthorize to your %{provider} account, please go to %{url}',
   complete: 'Complete',
   connectedToInternet: 'Connected to the Internet',
   copyLink: 'Copy link',
@@ -26,52 +36,74 @@ en_US.strings = {
   dashboardTitle: 'File Uploader',
   dashboardWindowTitle: 'File Uploader Window (Press escape to close)',
   dataUploadedOfTotal: '%{complete} of %{total}',
+  discardRecordedFile: 'Discard recorded file',
   done: 'Done',
   dropHereOr: 'Drop files here or %{browse}',
   dropHint: 'Drop your files here',
-  dropPaste: 'Drop files here, paste or %{browse}',
-  dropPasteImport: 'Drop files here, paste, %{browse} or import from',
-  edit: 'Edit',
+  dropPasteBoth: 'Drop files here, %{browseFiles} or %{browseFolders}',
+  dropPasteFiles: 'Drop files here or %{browseFiles}',
+  dropPasteFolders: 'Drop files here or %{browseFolders}',
+  dropPasteImportBoth: 'Drop files here, %{browseFiles}, %{browseFolders} or import from:',
+  dropPasteImportFiles: 'Drop files here, %{browseFiles} or import from:',
+  dropPasteImportFolders: 'Drop files here, %{browseFolders} or import from:',
   editFile: 'Edit file',
   editing: 'Editing %{file}',
   emptyFolderAdded: 'No files were added from empty folder',
   encoding: 'Encoding...',
   enterCorrectUrl: 'Incorrect URL: Please make sure you are entering a direct link to a file',
+  enterTextToSearch: 'Enter text to search for images',
   enterUrlToImport: 'Enter URL to import a file',
-  exceedsSize: 'This file exceeds maximum allowed size of',
+  exceedsSize: '%{file} exceeds maximum allowed size of',
+  exceedsSize2: '%{backwardsCompat} %{size}',
   failedToFetch: 'Companion failed to fetch this URL, please make sure it’s correct',
   failedToUpload: 'Failed to upload %{file}',
   fileSource: 'File source: %{name}',
   filesUploadedOfTotal: {
     '0': '%{complete} of %{smart_count} file uploaded',
     '1': '%{complete} of %{smart_count} files uploaded',
-    '2': '%{complete} of %{smart_count} files uploaded'
   },
   filter: 'Filter',
   finishEditingFile: 'Finish editing file',
+  flipHorizontal: 'Flip horizontal',
   folderAdded: {
     '0': 'Added %{smart_count} file from %{folder}',
     '1': 'Added %{smart_count} files from %{folder}',
-    '2': 'Added %{smart_count} files from %{folder}'
   },
+  generatingThumbnails: 'Generating thumbnails...',
   import: 'Import',
+  importFiles: 'Import files from:',
   importFrom: 'Import from %{name}',
-  link: 'Link',
+  inferiorSize: 'This file is smaller than the allowed size of %{size}',
   loading: 'Loading...',
   logOut: 'Log out',
+  micDisabled: 'Microphone access denied by user',
+  missingRequiredMetaField: 'Missing required meta fields',
+  missingRequiredMetaFieldOnFile: 'Missing required meta fields in %{fileName}',
   myDevice: 'My Device',
+  noCameraDescription: 'In order to take pictures or record video, please connect a camera device',
+  noCameraTitle: 'Camera Not Available',
+  noDuplicates: 'Cannot add the duplicate file \'%{fileName}\', it already exists',
   noFilesFound: 'You have no files or folders here',
   noInternetConnection: 'No Internet connection',
+  noNewAlreadyUploading: 'Cannot add new files: already uploading',
   openFolderNamed: 'Open folder %{name}',
   pause: 'Pause',
   pauseUpload: 'Pause upload',
   paused: 'Paused',
   poweredBy: 'Powered by',
-  preparingUpload: 'Preparing upload...',
+  poweredBy2: '%{backwardsCompat} %{uppy}',
   processingXFiles: {
     '0': 'Processing %{smart_count} file',
     '1': 'Processing %{smart_count} files',
-    '2': 'Processing %{smart_count} files'
+  },
+  reSelect: 'Re-select',
+  recording: 'Recording',
+  recordingLength: 'Recording length %{recording_length}',
+  recordingStoppedMaxSize: 'Recording stopped because the file size is about to exceed the limit',
+  recoveredAllFiles: 'We restored all files. You can now resume the upload.',
+  recoveredXFiles: {
+    '0': 'We could not fully recover 1 file. Please re-select it and resume the upload.',
+    '1': 'We could not fully recover %{smart_count} files. Please re-select them and resume the upload.',
   },
   removeFile: 'Remove file',
   resetFilter: 'Reset filter',
@@ -79,17 +111,26 @@ en_US.strings = {
   resumeUpload: 'Resume upload',
   retry: 'Retry',
   retryUpload: 'Retry upload',
+  revert: 'Revert',
+  rotate: 'Rotate',
+  save: 'Save',
   saveChanges: 'Save changes',
+  searchImages: 'Search for images',
   selectAllFilesFromFolderNamed: 'Select all files from folder %{name}',
   selectFileNamed: 'Select file %{name}',
   selectX: {
     '0': 'Select %{smart_count}',
     '1': 'Select %{smart_count}',
-    '2': 'Select %{smart_count}'
   },
+  sessionRestored: 'Session restored',
   smile: 'Smile!',
+  startCapturing: 'Begin screen capturing',
   startRecording: 'Begin video recording',
+  stopCapturing: 'Stop screen capturing',
   stopRecording: 'Stop video recording',
+  streamActive: 'Stream active',
+  streamPassive: 'Stream passive',
+  submitRecordedFile: 'Submit recorded file',
   takePicture: 'Take a picture',
   timedOut: 'Upload stalled for %{seconds} seconds, aborting.',
   unselectAllFilesFromFolderNamed: 'Unselect all files from folder %{name}',
@@ -101,45 +142,40 @@ en_US.strings = {
   uploadXFiles: {
     '0': 'Upload %{smart_count} file',
     '1': 'Upload %{smart_count} files',
-    '2': 'Upload %{smart_count} files'
   },
   uploadXNewFiles: {
     '0': 'Upload +%{smart_count} file',
     '1': 'Upload +%{smart_count} files',
-    '2': 'Upload +%{smart_count} files'
   },
   uploading: 'Uploading',
   uploadingXFiles: {
     '0': 'Uploading %{smart_count} file',
     '1': 'Uploading %{smart_count} files',
-    '2': 'Uploading %{smart_count} files'
   },
   xFilesSelected: {
     '0': '%{smart_count} file selected',
     '1': '%{smart_count} files selected',
-    '2': '%{smart_count} files selected'
   },
   xMoreFilesAdded: {
     '0': '%{smart_count} more file added',
     '1': '%{smart_count} more files added',
-    '2': '%{smart_count} more files added'
   },
   xTimeLeft: '%{time} left',
   youCanOnlyUploadFileTypes: 'You can only upload: %{types}',
   youCanOnlyUploadX: {
     '0': 'You can only upload %{smart_count} file',
     '1': 'You can only upload %{smart_count} files',
-    '2': 'You can only upload %{smart_count} files'
   },
   youHaveToAtLeastSelectX: {
     '0': 'You have to select at least %{smart_count} file',
     '1': 'You have to select at least %{smart_count} files',
-    '2': 'You have to select at least %{smart_count} files'
-  }
+  },
+  zoomIn: 'Zoom in',
+  zoomOut: 'Zoom out',
 }
 
-en_US.pluralize = function (n) {
-  if (n === 1) {
+en_US.pluralize = function (count) {
+  if (count === 1) {
     return 0
   }
   return 1

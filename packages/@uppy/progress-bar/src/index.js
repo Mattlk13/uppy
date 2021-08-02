@@ -19,22 +19,29 @@ module.exports = class ProgressBar extends Plugin {
       target: 'body',
       replaceTargetContent: false,
       fixed: false,
-      hideAfterFinish: true
+      hideAfterFinish: true,
     }
 
     // merge default options with the ones set by user
-    this.opts = Object.assign({}, defaultOptions, opts)
+    this.opts = { ...defaultOptions, ...opts }
 
     this.render = this.render.bind(this)
   }
 
   render (state) {
     const progress = state.totalProgress || 0
-    const isHidden = progress === 100 && this.opts.hideAfterFinish
-    return <div class="uppy uppy-ProgressBar" style={{ position: this.opts.fixed ? 'fixed' : 'initial' }} aria-hidden={isHidden}>
-      <div class="uppy-ProgressBar-inner" style={{ width: progress + '%' }} />
-      <div class="uppy-ProgressBar-percentage">{progress}</div>
-    </div>
+    // before starting and after finish should be hidden if specified in the options
+    const isHidden = (progress === 0 || progress === 100) && this.opts.hideAfterFinish
+    return (
+      <div
+        className="uppy uppy-ProgressBar"
+        style={{ position: this.opts.fixed ? 'fixed' : 'initial' }}
+        aria-hidden={isHidden}
+      >
+        <div className="uppy-ProgressBar-inner" style={{ width: `${progress}%` }} />
+        <div className="uppy-ProgressBar-percentage">{progress}</div>
+      </div>
+    )
   }
 
   install () {

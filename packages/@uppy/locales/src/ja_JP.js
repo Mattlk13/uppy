@@ -10,11 +10,11 @@ ja_JP.strings = {
   authenticateWithTitle: 'ファイルを選択するには%{pluginName}で認証してください',
   back: '戻る',
   browse: '参照',
+  browseFiles: '参照',
   cancel: 'キャンセル',
   cancelUpload: 'アップロードをキャンセル',
   chooseFiles: 'ファイルを選択',
   closeModal: 'モーダルを閉じる',
-  companionAuthError: '認証が必要です',
   companionError: 'Companionとの接続に失敗しました',
   complete: '完了しました',
   connectedToInternet: 'インターネットに接続しました',
@@ -29,9 +29,12 @@ ja_JP.strings = {
   done: '完了しました',
   dropHereOr: 'ここにファイルをドロップするか%{browse}してください',
   dropHint: 'ここにファイルをドロップしてください',
-  dropPaste: 'ここにファイルをドロップするか、貼り付けるか、%{browse}してください',
-  dropPasteImport: 'ここにファイルをドロップするか、貼り付けるか、%{browse}するか、以下からインポートしてください',
-  edit: '編集',
+  dropPasteBoth: 'ここにファイルをドロップするか、貼り付けるか、%{browse}してください',
+  dropPasteFiles: 'ここにファイルをドロップするか、貼り付けるか、%{browse}してください',
+  dropPasteFolders: 'ここにファイルをドロップするか、貼り付けるか、%{browse}してください',
+  dropPasteImportBoth: 'ここにファイルをドロップするか、貼り付けるか、%{browse}するか、以下からインポートしてください',
+  dropPasteImportFiles: 'ここにファイルをドロップするか、貼り付けるか、%{browse}するか、以下からインポートしてください',
+  dropPasteImportFolders: 'ここにファイルをドロップするか、貼り付けるか、%{browse}するか、以下からインポートしてください',
   editFile: 'ファイルを編集',
   editing: '%{file}を編集しています',
   emptyFolderAdded: 'フォルダが空なためファイルが追加されませんでした',
@@ -45,18 +48,17 @@ ja_JP.strings = {
   filesUploadedOfTotal: {
     '0': '%{smart_count} 個のファイルのアップロードが%{complete}',
     '1': '%{smart_count} 個のファイルのアップロードが%{complete}',
-    '2': '%{cmart_count} 個のファイルのアップロードが%{complete}'
+    '2': '%{cmart_count} 個のファイルのアップロードが%{complete}',
   },
   filter: 'フィルタ',
   finishEditingFile: 'ファイルの編集を終了',
   folderAdded: {
     '0': '%{folder} から% {smart_count} 個のファイルを追加しました',
     '1': '%{folder} から% {smart_count} 個のファイルを追加しました',
-    '2': '%{folder} から% {smart_count} 個のファイルを追加しました'
+    '2': '%{folder} から% {smart_count} 個のファイルを追加しました',
   },
   import: 'インポート',
   importFrom: '%{name}からインポート',
-  link: 'リンク',
   loading: 'ロード中...',
   logOut: 'ログアウト',
   myDevice: 'マイデバイス',
@@ -66,11 +68,10 @@ ja_JP.strings = {
   pauseUpload: 'アップロードを一時停止',
   paused: '停止中',
   poweredBy: 'Powered by',
-  preparingUpload: 'アップロードを準備中...',
   processingXFiles: {
     '0': '%{smart_count} ファイル処理中',
     '1': '%{smart_count} ファイル処理中',
-    '2': '%{smart_count} ファイル処理中'
+    '2': '%{smart_count} ファイル処理中',
   },
   removeFile: 'ファイルを消す',
   resetFilter: 'フィルタをリセット',
@@ -82,7 +83,7 @@ ja_JP.strings = {
   selectX: {
     '0': '%{smart_count} を選択',
     '1': '%{smart_count} を選択',
-    '2': '%{smart_count} を選択'
+    '2': '%{smart_count} を選択',
   },
   smile: 'スマイル〜！',
   startRecording: '録画開始',
@@ -96,46 +97,46 @@ ja_JP.strings = {
   uploadXFiles: {
     '0': '%{smart_count} ファイルをアップロード',
     '1': '%{smart_count} ファイルをアップロード',
-    '2': '%{smart_count} ファイルをアップロード'
+    '2': '%{smart_count} ファイルをアップロード',
   },
   uploadXNewFiles: {
     '0': '+%{smart_count} ファイルをアップロード',
     '1': '+%{smart_count} ファイルをアップロード',
-    '2': '+%{smart_count} ファイルをアップロード'
+    '2': '+%{smart_count} ファイルをアップロード',
   },
   uploading: 'アップロード中',
   uploadingXFiles: {
     '0': '%{smart_count} ファイルアップロード中',
     '1': '%{smart_count} ファイルアップロード中',
-    '2': '%{smart_count} ファイルアップロード中'
+    '2': '%{smart_count} ファイルアップロード中',
   },
   xFilesSelected: {
     '0': '%{smart_count} ファイルを選択',
     '1': '%{smart_count} ファイルを選択',
-    '2': '%{smart_count} ファイルを選択'
+    '2': '%{smart_count} ファイルを選択',
   },
   xMoreFilesAdded: {
     '0': '%{smart_count} ファイルを追加',
     '1': '%{smart_count} ファイルを追加',
-    '2': '%{smart_count} ファイルを追加'
+    '2': '%{smart_count} ファイルを追加',
   },
   xTimeLeft: '残り %{time}',
   youCanOnlyUploadFileTypes: '許可されているファイル形式は次の物です: %{types}',
   youCanOnlyUploadX: {
     '0': '%{smart_count} ファイル数のみアップロード可能です',
     '1': '%{smart_count} ファイル数のみアップロード可能です',
-    '2': '%{smart_count} ファイル数のみアップロード可能です'
+    '2': '%{smart_count} ファイル数のみアップロード可能です',
   },
   youHaveToAtLeastSelectX: {
     '0': '最低でも %{smart_count} ファイル選択してください',
     '1': '最低でも %{smart_count} ファイル選択してください',
-    '2': '最低でも %{smart_count} ファイル選択してください'
+    '2': '最低でも %{smart_count} ファイル選択してください',
   },
   selectAllFilesFromFolderNamed: 'フォルダからすべてのファイルを選択 %{name}',
   unselectAllFilesFromFolderNamed: 'フォルダからすべてのファイルを選択解除 %{name}',
   selectFileNamed: 'ファイルを選ぶ %{name}',
   unselectFileNamed: 'ファイルの選択を解除 %{name}',
-  openFolderNamed: '開いたフォルダ %{name}'
+  openFolderNamed: '開いたフォルダ %{name}',
 }
 
 ja_JP.pluralize = function (n) {

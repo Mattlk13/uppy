@@ -1,37 +1,56 @@
 const fs = require('fs')
+const qs = require('querystring')
+const fixtures = require('../fixtures').providers
+
+function has (object, property) {
+  return Object.prototype.hasOwnProperty.call(object, property)
+}
 
 class MockPurest {
   constructor (opts) {
-    const methodsToMock = ['query', 'select', 'where', 'auth', 'get', 'put', 'post', 'options', 'json']
+    const methodsToMock = ['query', 'select', 'where', 'auth', 'json']
+    const httpMethodsToMock = ['get', 'put', 'post', 'head', 'delete']
     methodsToMock.forEach((item) => {
       this[item] = () => this
+    })
+    httpMethodsToMock.forEach((item) => {
+      this[item] = (url) => {
+        this._requestUrl = url
+        this._method = item
+        return this
+      }
     })
     this.opts = opts
   }
 
+  qs (data) {
+    this._query = qs.stringify(data)
+    return this
+  }
+
+  options (reqOpts) {
+    this._requestOptions = reqOpts
+    return this
+  }
+
   request (done) {
     if (typeof done === 'function') {
-      const responses = {
-        dropbox: {
-          hash: '0a9f95a989dd4b1851f0103c31e304ce',
-          user_email: 'foo@bar.com',
-          email: 'foo@bar.com',
-          entries: [{ rev: 'f24234cd4' }]
-        },
-        drive: {
-          kind: 'drive#fileList',
-          etag: '"bcIyJ9A3gXa8oTYmz6nzAjQd-lY/eQc3WbZHkXpcItNyGKDuKXM_bNY"',
-          files: [{
-            id: '0B2x-PmqQHSKdT013TE1VVjZ3TWs',
-            mimeType: 'image/jpg',
-            ownedByMe: true,
-            permissions: [{ role: 'owner', emailAddress: 'ife@bala.com' }]
-          }],
-          size: 300
-        }
+      const { responses } = fixtures[this.opts.providerName]
+      const url = this._query ? `${this._requestUrl}?${this._query}` : this._requestUrl
+      const endpointResponses = responses[url] || responses[this._requestUrl]
+      if (endpointResponses == null || !has(endpointResponses, this._method)) {
+        done(new Error(`No fixture for ${this._method} ${url}`))
+        return
       }
-      const body = responses[this.opts.providerName]
-      done(null, { body, statusCode: 200 }, body)
+
+      let statusCode = 200
+      const { validators } = fixtures[this.opts.providerName]
+      if (validators && validators[this._requestUrl]) {
+        statusCode = validators[this._requestUrl](this._requestOptions) ? 200 : 400
+      }
+
+      const body = statusCode === 200 ? endpointResponses[this._method] : {}
+      done(null, { body, statusCode }, body)
     }
 
     return this
